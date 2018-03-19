@@ -1,0 +1,5 @@
+ue4cli/__pycache__
+.vscode
+dist
+*.egg-info
+*.pyc
