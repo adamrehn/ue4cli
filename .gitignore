@@ -1,5 +1,6 @@
 ue4cli/__pycache__
 .vscode
+build
 dist
 *.egg-info
 *.pyc
