@@ -76,6 +76,12 @@ class ThirdPartyLibraryDetails(object):
 		"""
 		return delimiter.join([d.replace('%UE4_ROOT%', engineRoot) for d in self.libs])
 	
+	def getPreprocessorDefinitions(self, engineRoot, delimiter=' '):
+		"""
+		Returns the list of preprocessor definitions for this library, joined using the specified delimiter
+		"""
+		return delimiter.join([d.replace('%UE4_ROOT%', engineRoot) for d in self.definitions])
+	
 	def getCMakeFlags(self, engineRoot):
 		"""
 		Constructs the CMake invocation flags string for building against this library

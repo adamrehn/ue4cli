@@ -171,6 +171,13 @@ class UnrealManagerBase(object):
 		details = self.getThirdpartyLibs(libs)
 		return details.getLibraryFiles(self.getEngineRoot(), delimiter='\n')
 	
+	def getThirdPartyLibDefinitions(self, libs):
+		"""
+		Retrieves the list of preprocessor definitions for building against the Unreal-bundled versions of the specified third-party libraries
+		"""
+		details = self.getThirdpartyLibs(libs)
+		return details.getPreprocessorDefinitions(self.getEngineRoot(), delimiter='\n')
+	
 	def generateProjectFiles(self, dir=os.getcwd()):
 		"""
 		Generates IDE project files for the Unreal project in the specified directory
