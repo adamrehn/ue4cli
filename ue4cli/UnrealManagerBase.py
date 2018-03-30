@@ -50,12 +50,24 @@ class UnrealManagerBase(object):
 			self._engineRoot = self._getEngineRoot()
 		return self._engineRoot
 	
-	def getEngineVersion(self):
+	def getEngineVersion(self, outputFormat = 'full'):
 		"""
 		Returns the version number of the latest installed version of UE4
 		"""
 		version = self._getEngineVersionDetails()
-		return '{}.{}.{}'.format(version['MajorVersion'], version['MinorVersion'], version['PatchVersion'])
+		formats = {
+			'major': version['MajorVersion'],
+			'minor': version['MinorVersion'],
+			'patch': version['PatchVersion'],
+			'full': '{}.{}.{}'.format(version['MajorVersion'], version['MinorVersion'], version['PatchVersion']),
+			'short': '{}.{}'.format(version['MajorVersion'], version['MinorVersion'])
+		}
+		
+		# Verify that the requested output format is valid
+		if outputFormat not in formats:
+			raise Exception('unreconised version output format "{}"'.format(outputFormat))
+		
+		return formats[outputFormat]
 	
 	def getEngineChangelist(self):
 		"""

@@ -38,9 +38,9 @@ SUPPORTED_COMMANDS = {
 	},
 	
 	'version': {
-		'description': 'Print the version string of the Unreal Engine',
-		'action': lambda m, args: print(m.getEngineVersion()),
-		'args': None
+		'description': 'Print the version string of the Unreal Engine (default format is "full")',
+		'action': lambda m, args: print(m.getEngineVersion(args[0] if len(args) > 0 else 'full')),
+		'args': '[major|minor|patch|full|short]'
 	},
 	
 	'run': {
@@ -103,6 +103,12 @@ SUPPORTED_COMMANDS = {
 		'args': '[LIBS]'
 	},
 	
+	'defines': {
+		'description': 'Print preprocessor definitions for building against libs',
+		'action': lambda m, args: print(m.getThirdPartyLibDefinitions(args)),
+		'args': '[LIBS]'
+	},
+	
 	'uat': {
 		'description': 'Invoke RunUAT with the specified arguments',
 		'action': lambda m, args: m.runUAT(args),
@@ -130,7 +136,7 @@ COMMAND_GROUPINGS = [
 	{
 		'name': 'Library-related commands',
 		'description': 'These commands are for developers compiling modules that need to build against\nUE4-bundled third-party libs for purposes of interoperability with the engine:',
-		'commands': ['libs', 'cxxflags', 'ldflags', 'cmakeflags', 'includedirs', 'libfiles']
+		'commands': ['libs', 'cxxflags', 'ldflags', 'cmakeflags', 'includedirs', 'libfiles', 'defines']
 	},
 	{
 		'name': 'Automation-related commands',
