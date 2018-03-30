@@ -57,7 +57,7 @@ Engine-related commands
 These commands relate to the Unreal Engine itself:
 
 - `ue4 root` - Print the path to the root directory of the Unreal Engine
-- `ue4 version` - Print the version string of the Unreal Engine
+- `ue4 version [major|minor|patch|full|short]` - Print the version string of the Unreal Engine (default format is "full")
 
 
 Project-related commands
@@ -82,6 +82,7 @@ These commands are for developers compiling modules that need to build against U
 - `ue4 cmakeflags [LIBS]` - Print CMake flags for building against libs
 - `ue4 includedirs [LIBS]` - Print include directories for building against libs
 - `ue4 libfiles [LIBS]` - Print library files for building against libs
+- `ue4 defines [LIBS]` - Print preprocessor definitions for building against libs
 
 
 Automation-related commands
