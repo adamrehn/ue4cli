@@ -91,6 +91,18 @@ SUPPORTED_COMMANDS = {
 		'args': '[LIBS]'
 	},
 	
+	'includedirs': {
+		'description': 'Print include directories for building against libs',
+		'action': lambda m, args: print(m.getThirdPartyLibIncludeDirs(args)),
+		'args': '[LIBS]'
+	},
+	
+	'libfiles': {
+		'description': 'Print library files for building against libs',
+		'action': lambda m, args: print(m.getThirdPartyLibFiles(args)),
+		'args': '[LIBS]'
+	},
+	
 	'uat': {
 		'description': 'Invoke RunUAT with the specified arguments',
 		'action': lambda m, args: m.runUAT(args),
@@ -118,7 +130,7 @@ COMMAND_GROUPINGS = [
 	{
 		'name': 'Library-related commands',
 		'description': 'These commands are for developers compiling modules that need to build against\nUE4-bundled third-party libs for purposes of interoperability with the engine:',
-		'commands': ['libs', 'cxxflags', 'ldflags', 'cmakeflags']
+		'commands': ['libs', 'cxxflags', 'ldflags', 'cmakeflags', 'includedirs', 'libfiles']
 	},
 	{
 		'name': 'Automation-related commands',

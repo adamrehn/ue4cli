@@ -143,7 +143,21 @@ class UnrealManagerBase(object):
 		"""
 		details = self.getThirdpartyLibs(libs)
 		CMakeCustomFlags.processLibraryDetails(details)
-		return details.getCMakeFlags(self.getEngineRoot());
+		return details.getCMakeFlags(self.getEngineRoot())
+	
+	def getThirdPartyLibIncludeDirs(self, libs):
+		"""
+		Retrieves the list of include directories for building against the Unreal-bundled versions of the specified third-party libraries
+		"""
+		details = self.getThirdpartyLibs(libs)
+		return details.getIncludeDirectories(self.getEngineRoot(), delimiter='\n')
+	
+	def getThirdPartyLibFiles(self, libs):
+		"""
+		Retrieves the list of library files for building against the Unreal-bundled versions of the specified third-party libraries
+		"""
+		details = self.getThirdpartyLibs(libs)
+		return details.getLibraryFiles(self.getEngineRoot(), delimiter='\n')
 	
 	def generateProjectFiles(self, dir=os.getcwd()):
 		"""

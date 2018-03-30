@@ -80,6 +80,8 @@ These commands are for developers compiling modules that need to build against U
 - `ue4 cxxflags [LIBS]` - Print compiler flags for building against libs
 - `ue4 ldflags [LIBS]` - Print linker flags for building against libs
 - `ue4 cmakeflags [LIBS]` - Print CMake flags for building against libs
+- `ue4 includedirs [LIBS]` - Print include directories for building against libs
+- `ue4 libfiles [LIBS]` - Print library files for building against libs
 
 
 Automation-related commands
