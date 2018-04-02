@@ -5,14 +5,15 @@ from .Utility import Utility
 import re, os
 
 # Details for libc++
+LIBCXX_LIBDIR = '%UE4_ROOT%/Engine/Source/ThirdParty/Linux/LibCxx/lib/Linux/x86_64-unknown-linux-gnu'
 LIBCXX_DETAILS_OVERRIDE = ThirdPartyLibraryDetails(
 	prefixDirs  = [],
 	includeDirs = [
 		'%UE4_ROOT%/Engine/Source/ThirdParty/Linux/LibCxx/include',
 		'%UE4_ROOT%/Engine/Source/ThirdParty/Linux/LibCxx/include/c++/v1'
 	],
-	linkDirs    = ['%UE4_ROOT%/Engine/Source/ThirdParty/Linux/LibCxx/lib/Linux/x86_64-unknown-linux-gnu'],
-	libs        = ['-lc++', '-lc++abi', '-lm', '-lc', '-lgcc_s', '-lgcc'],
+	linkDirs    = [LIBCXX_LIBDIR],
+	libs        = ['{}/libc++.a'.format(LIBCXX_LIBDIR), '{}/libc++abi.a'.format(LIBCXX_LIBDIR), '-lm', '-lc', '-lgcc_s', '-lgcc'],
 	cxxFlags    = ['-fPIC', '-nostdinc++'],
 	ldFlags     = ['-nodefaultlibs'],
 	cmakeFlags  = []

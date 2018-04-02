@@ -76,19 +76,19 @@ SUPPORTED_COMMANDS = {
 	'cxxflags': {
 		'description': 'Print compiler flags for building against libs',
 		'action': lambda m, args: print(m.getThirdPartyLibCompilerFlags(args)),
-		'args': '[LIBS]'
+		'args': '[--multiline] [LIBS]'
 	},
 	
 	'ldflags': {
 		'description': 'Print linker flags for building against libs',
 		'action': lambda m, args: print(m.getThirdPartyLibLinkerFlags(args)),
-		'args': '[LIBS]'
+		'args': '[--multiline] [--flagsonly] [LIBS]'
 	},
 	
 	'cmakeflags': {
 		'description': 'Print CMake flags for building against libs',
 		'action': lambda m, args: print(m.getThirdPartyLibCmakeFlags(args)),
-		'args': '[LIBS]'
+		'args': '[--multiline] [LIBS]'
 	},
 	
 	'includedirs': {

@@ -77,9 +77,9 @@ Library-related commands
 These commands are for developers compiling modules that need to build against UE4-bundled third-party libraries for purposes of interoperability with the engine:
 
 - `ue4 libs` - List the supported third-party libs
-- `ue4 cxxflags [LIBS]` - Print compiler flags for building against libs
-- `ue4 ldflags [LIBS]` - Print linker flags for building against libs
-- `ue4 cmakeflags [LIBS]` - Print CMake flags for building against libs
+- `ue4 cxxflags [--multiline] [LIBS]` - Print compiler flags for building against libs
+- `ue4 ldflags [--multiline] [--flagsonly] [LIBS]` - Print linker flags for building against libs
+- `ue4 cmakeflags [--multiline] [LIBS]` - Print CMake flags for building against libs
 - `ue4 includedirs [LIBS]` - Print include directories for building against libs
 - `ue4 libfiles [LIBS]` - Print library files for building against libs
 - `ue4 defines [LIBS]` - Print preprocessor definitions for building against libs

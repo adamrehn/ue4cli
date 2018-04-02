@@ -1,4 +1,4 @@
-from .ThirdPartyLibraryDetails import ThirdPartyLibraryDetails
+from .ThirdPartyLibraryDetails import PrintingFormat, ThirdPartyLibraryDetails
 from .UnrealManagerException import UnrealManagerException
 from .ConfigurationManager import ConfigurationManager
 from .UE4BuildInterrogator import UE4BuildInterrogator
@@ -139,23 +139,43 @@ class UnrealManagerBase(object):
 		"""
 		Retrieves the compiler flags for building against the Unreal-bundled versions of the specified third-party libraries
 		"""
+		fmt = PrintingFormat.singleLine()
+		if libs[0] == '--multiline':
+			fmt = PrintingFormat.multiLine()
+			libs = libs[1:]
+		
 		details = self.getThirdpartyLibs(libs)
-		return details.getCompilerFlags(self.getEngineRoot())
+		return details.getCompilerFlags(self.getEngineRoot(), fmt)
 	
 	def getThirdPartyLibLinkerFlags(self, libs):
 		"""
 		Retrieves the linker flags for building against the Unreal-bundled versions of the specified third-party libraries
 		"""
+		fmt = PrintingFormat.singleLine()
+		if libs[0] == '--multiline':
+			fmt = PrintingFormat.multiLine()
+			libs = libs[1:]
+		
+		includeLibs = True
+		if (libs[0] == '--flagsonly'):
+			includeLibs = False
+			libs = libs[1:]
+		
 		details = self.getThirdpartyLibs(libs)
-		return details.getLinkerFlags(self.getEngineRoot())
+		return details.getLinkerFlags(self.getEngineRoot(), fmt, includeLibs)
 	
 	def getThirdPartyLibCmakeFlags(self, libs):
 		"""
 		Retrieves the CMake invocation flags for building against the Unreal-bundled versions of the specified third-party libraries
 		"""
+		fmt = PrintingFormat.singleLine()
+		if libs[0] == '--multiline':
+			fmt = PrintingFormat.multiLine()
+			libs = libs[1:]
+		
 		details = self.getThirdpartyLibs(libs)
 		CMakeCustomFlags.processLibraryDetails(details)
-		return details.getCMakeFlags(self.getEngineRoot())
+		return details.getCMakeFlags(self.getEngineRoot(), fmt)
 	
 	def getThirdPartyLibIncludeDirs(self, libs):
 		"""

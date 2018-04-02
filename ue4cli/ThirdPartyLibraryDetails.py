@@ -1,6 +1,30 @@
 from .Utility import Utility
 import platform
 
+class PrintingFormat(object):
+	"""
+	Represents the formatting used to print a set of flags
+	"""
+	
+	def __init__(self, delim, quotes):
+		self.delim = delim
+		self.quotes = quotes
+	
+	@staticmethod
+	def singleLine():
+		"""
+		Printing format for a single, space-delimited line
+		"""
+		return PrintingFormat(' ', True)
+	
+	@staticmethod
+	def multiLine():
+		"""
+		Printing format for multiple lines
+		"""
+		return PrintingFormat('\n', False)
+
+
 class ThirdPartyLibraryDetails(object):
 	"""
 	Represents the details of the Unreal-specific versions of one of more third-party libraries
@@ -32,25 +56,28 @@ class ThirdPartyLibraryDetails(object):
 		self.ldFlags     = self.ldFlags + other.ldFlags
 		self.cmakeFlags  = self.cmakeFlags + other.cmakeFlags
 	
-	def getCompilerFlags(self, engineRoot):
+	def getCompilerFlags(self, engineRoot, fmt):
 		"""
 		Constructs the compiler flags string for building against this library
 		"""
-		return Utility.join(' ', [
-			self._prefixedStrings(self.definitionPrefix, self.definitions, engineRoot),
-			self._prefixedStrings(self.includeDirPrefix, self.includeDirs, engineRoot),
-			self._prefixedStrings('', self.cxxFlags, engineRoot)
-		])
+		return Utility.join(
+			fmt.delim, 
+				self._prefixedStrings(self.definitionPrefix, self.definitions, engineRoot, False) +
+				self._prefixedStrings(self.includeDirPrefix, self.includeDirs, engineRoot, False) +
+				self._prefixedStrings('', self.cxxFlags, engineRoot, False),
+			fmt.quotes
+		)
 	
-	def getLinkerFlags(self, engineRoot):
+	def getLinkerFlags(self, engineRoot, fmt, includeLibs=True):
 		"""
 		Constructs the linker flags string for building against this library
 		"""
-		return Utility.join(' ', [
-			self._prefixedStrings(self.linkerDirPrefix, self.linkDirs, engineRoot),
-			self._prefixedStrings('', self.libs, engineRoot),
-			self._prefixedStrings('', self.ldFlags, engineRoot)
-		])
+		components = self._prefixedStrings('', self.ldFlags, engineRoot, False)
+		if includeLibs == True:
+			components.extend(self._prefixedStrings(self.linkerDirPrefix, self.linkDirs, engineRoot, False))
+			components.extend(self._prefixedStrings('', self.libs, engineRoot, False))
+		
+		return Utility.join(fmt.delim, components, fmt.quotes)
 	
 	def getPrefixDirectories(self, engineRoot, delimiter=' '):
 		"""
@@ -82,18 +109,26 @@ class ThirdPartyLibraryDetails(object):
 		"""
 		return delimiter.join([d.replace('%UE4_ROOT%', engineRoot) for d in self.definitions])
 	
-	def getCMakeFlags(self, engineRoot):
+	def getCMakeFlags(self, engineRoot, fmt):
 		"""
 		Constructs the CMake invocation flags string for building against this library
 		"""
-		flags = '"-DCMAKE_PREFIX_PATH=' + self.getPrefixDirectories(engineRoot, ';') + '"'
-		flags += ' "-DCMAKE_INCLUDE_PATH=' + self.getIncludeDirectories(engineRoot, ';') + '"'
-		flags += ' "-DCMAKE_LIBRARY_PATH=' + self.getLinkerDirectories(engineRoot, ';') + '"'
-		flags += ' ' + self._prefixedStrings('', self.cmakeFlags, engineRoot)
-		return flags
+		return Utility.join(
+			fmt.delim,
+			[
+				'-DCMAKE_PREFIX_PATH=' + self.getPrefixDirectories(engineRoot, ';'),
+				'-DCMAKE_INCLUDE_PATH=' + self.getIncludeDirectories(engineRoot, ';'),
+				'-DCMAKE_LIBRARY_PATH=' + self.getLinkerDirectories(engineRoot, ';'),
+			] + self._prefixedStrings('', self.cmakeFlags, engineRoot, False),
+			fmt.quotes
+		)
 	
 	
 	# "Private" methods
-	def _prefixedStrings(self, prefix, strings, engineRoot):
+	
+	def _prefixedStrings(self, prefix, strings, engineRoot, join=True, quotes=True):
 		transformed = [prefix + s.replace('%UE4_ROOT%', engineRoot) for s in strings]
-		return Utility.join('" "', transformed, quotes=True)
+		if join == True:
+			return Utility.join('" "', transformed, quotes=quotes)
+		else:
+			return transformed
