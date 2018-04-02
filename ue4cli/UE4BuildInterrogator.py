@@ -12,12 +12,12 @@ class UE4BuildInterrogator(object):
 		self.engineVersionHash = engineVersionHash
 		self.runUBTFunc = runUBTFunc
 	
-	def list(self, platformIdentifier, configuration):
+	def list(self, platformIdentifier, configuration, libOverrides = {}):
 		"""
 		Returns the list of supported UE4-bundled third-party libraries
 		"""
 		modules = self._getThirdPartyLibs(platformIdentifier, configuration)
-		return sorted([m['Name'] for m in modules])
+		return sorted([m['Name'] for m in modules] + [key for key in libOverrides])
 	
 	def interrogate(self, platformIdentifier, configuration, libraries, libOverrides = {}):
 		"""

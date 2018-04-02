@@ -126,14 +126,16 @@ class UnrealManagerBase(object):
 		Lists the supported Unreal-bundled third-party libraries
 		"""
 		interrogator = self._getUE4BuildInterrogator()
-		return interrogator.list(self.getPlatformIdentifier(), configuration)
+		return interrogator.list(self.getPlatformIdentifier(), configuration, self._getLibraryOverrides())
 	
-	def getThirdpartyLibs(self, libs, configuration = 'Development'):
+	def getThirdpartyLibs(self, libs, configuration = 'Development', includePlatformDefaults = True):
 		"""
 		Retrieves the ThirdPartyLibraryDetails instance for Unreal-bundled versions of the specified third-party libraries
 		"""
+		if includePlatformDefaults == True:
+			libs = self._defaultThirdpartyLibs() + libs
 		interrogator = self._getUE4BuildInterrogator()
-		return interrogator.interrogate(self.getPlatformIdentifier(), configuration, self._defaultThirdpartyLibs() + libs, self._getLibraryOverrides())
+		return interrogator.interrogate(self.getPlatformIdentifier(), configuration, libs, self._getLibraryOverrides())
 	
 	def getThirdPartyLibCompilerFlags(self, libs):
 		"""
@@ -144,7 +146,12 @@ class UnrealManagerBase(object):
 			fmt = PrintingFormat.multiLine()
 			libs = libs[1:]
 		
-		details = self.getThirdpartyLibs(libs)
+		platformDefaults = True
+		if libs[0] == '--nodefaults':
+			platformDefaults = False
+			libs = libs[1:]
+		
+		details = self.getThirdpartyLibs(libs, includePlatformDefaults=platformDefaults)
 		return details.getCompilerFlags(self.getEngineRoot(), fmt)
 	
 	def getThirdPartyLibLinkerFlags(self, libs):
@@ -161,7 +168,12 @@ class UnrealManagerBase(object):
 			includeLibs = False
 			libs = libs[1:]
 		
-		details = self.getThirdpartyLibs(libs)
+		platformDefaults = True
+		if libs[0] == '--nodefaults':
+			platformDefaults = False
+			libs = libs[1:]
+		
+		details = self.getThirdpartyLibs(libs, includePlatformDefaults=platformDefaults)
 		return details.getLinkerFlags(self.getEngineRoot(), fmt, includeLibs)
 	
 	def getThirdPartyLibCmakeFlags(self, libs):
@@ -173,7 +185,12 @@ class UnrealManagerBase(object):
 			fmt = PrintingFormat.multiLine()
 			libs = libs[1:]
 		
-		details = self.getThirdpartyLibs(libs)
+		platformDefaults = True
+		if libs[0] == '--nodefaults':
+			platformDefaults = False
+			libs = libs[1:]
+		
+		details = self.getThirdpartyLibs(libs, includePlatformDefaults=platformDefaults)
 		CMakeCustomFlags.processLibraryDetails(details)
 		return details.getCMakeFlags(self.getEngineRoot(), fmt)
 	
@@ -181,21 +198,36 @@ class UnrealManagerBase(object):
 		"""
 		Retrieves the list of include directories for building against the Unreal-bundled versions of the specified third-party libraries
 		"""
-		details = self.getThirdpartyLibs(libs)
+		platformDefaults = True
+		if libs[0] == '--nodefaults':
+			platformDefaults = False
+			libs = libs[1:]
+		
+		details = self.getThirdpartyLibs(libs, includePlatformDefaults=platformDefaults)
 		return details.getIncludeDirectories(self.getEngineRoot(), delimiter='\n')
 	
 	def getThirdPartyLibFiles(self, libs):
 		"""
 		Retrieves the list of library files for building against the Unreal-bundled versions of the specified third-party libraries
 		"""
-		details = self.getThirdpartyLibs(libs)
+		platformDefaults = True
+		if libs[0] == '--nodefaults':
+			platformDefaults = False
+			libs = libs[1:]
+		
+		details = self.getThirdpartyLibs(libs, includePlatformDefaults=platformDefaults)
 		return details.getLibraryFiles(self.getEngineRoot(), delimiter='\n')
 	
 	def getThirdPartyLibDefinitions(self, libs):
 		"""
 		Retrieves the list of preprocessor definitions for building against the Unreal-bundled versions of the specified third-party libraries
 		"""
-		details = self.getThirdpartyLibs(libs)
+		platformDefaults = True
+		if libs[0] == '--nodefaults':
+			platformDefaults = False
+			libs = libs[1:]
+		
+		details = self.getThirdpartyLibs(libs, includePlatformDefaults=platformDefaults)
 		return details.getPreprocessorDefinitions(self.getEngineRoot(), delimiter='\n')
 	
 	def generateProjectFiles(self, dir=os.getcwd()):

@@ -76,37 +76,37 @@ SUPPORTED_COMMANDS = {
 	'cxxflags': {
 		'description': 'Print compiler flags for building against libs',
 		'action': lambda m, args: print(m.getThirdPartyLibCompilerFlags(args)),
-		'args': '[--multiline] [LIBS]'
+		'args': '[--multiline] [--nodefaults] [LIBS]'
 	},
 	
 	'ldflags': {
 		'description': 'Print linker flags for building against libs',
 		'action': lambda m, args: print(m.getThirdPartyLibLinkerFlags(args)),
-		'args': '[--multiline] [--flagsonly] [LIBS]'
+		'args': '[--multiline] [--flagsonly] [--nodefaults] [LIBS]'
 	},
 	
 	'cmakeflags': {
 		'description': 'Print CMake flags for building against libs',
 		'action': lambda m, args: print(m.getThirdPartyLibCmakeFlags(args)),
-		'args': '[--multiline] [LIBS]'
+		'args': '[--multiline] [--nodefaults] [LIBS]'
 	},
 	
 	'includedirs': {
 		'description': 'Print include directories for building against libs',
 		'action': lambda m, args: print(m.getThirdPartyLibIncludeDirs(args)),
-		'args': '[LIBS]'
+		'args': '[--nodefaults] [LIBS]'
 	},
 	
 	'libfiles': {
 		'description': 'Print library files for building against libs',
 		'action': lambda m, args: print(m.getThirdPartyLibFiles(args)),
-		'args': '[LIBS]'
+		'args': '[--nodefaults] [LIBS]'
 	},
 	
 	'defines': {
 		'description': 'Print preprocessor definitions for building against libs',
 		'action': lambda m, args: print(m.getThirdPartyLibDefinitions(args)),
-		'args': '[LIBS]'
+		'args': '[--nodefaults] [LIBS]'
 	},
 	
 	'uat': {
