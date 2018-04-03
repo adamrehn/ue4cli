@@ -63,10 +63,13 @@ class Utility:
 		"""
 		Joins the supplied list of strings after removing any empty strings from the list
 		"""
-		stripped = list([i for i in items if len(i) > 0])
+		transform = lambda s: s
+		if quotes == True:
+			transform = lambda s: s if ' ' not in s else '"{}"'.format(s)
+		
+		stripped = list([transform(i) for i in items if len(i) > 0])
 		if len(stripped) > 0:
-			padding = '"' if quotes == True else ''
-			return padding + delim.join(stripped) + padding
+			return delim.join(stripped)
 		return ''
 	
 	@staticmethod

@@ -46,6 +46,18 @@ class ThirdPartyLibraryDetails(object):
 		self.includeDirPrefix = '/I'        if isWindows else '-I'
 		self.linkerDirPrefix  = '/LIBPATH:' if isWindows else '-L'
 	
+	def __repr__(self):
+		return repr({
+			'prefixDirs': self.prefixDirs,
+			'includeDirs': self.includeDirs,
+			'linkDirs': self.linkDirs,
+			'libs': self.libs,
+			'definitions': self.definitions,
+			'cxxFlags': self.cxxFlags,
+			'ldFlags': self.ldFlags,
+			'cmakeFlags': self.cmakeFlags
+		})
+	
 	def merge(self, other):
 		self.prefixDirs  = self.prefixDirs + other.prefixDirs
 		self.includeDirs = self.includeDirs + other.includeDirs
@@ -62,9 +74,9 @@ class ThirdPartyLibraryDetails(object):
 		"""
 		return Utility.join(
 			fmt.delim, 
-				self._prefixedStrings(self.definitionPrefix, self.definitions, engineRoot, False) +
-				self._prefixedStrings(self.includeDirPrefix, self.includeDirs, engineRoot, False) +
-				self._prefixedStrings('', self.cxxFlags, engineRoot, False),
+				self.prefixedStrings(self.definitionPrefix, self.definitions, engineRoot) +
+				self.prefixedStrings(self.includeDirPrefix, self.includeDirs, engineRoot) +
+				self.resolveRoot(self.cxxFlags, engineRoot),
 			fmt.quotes
 		)
 	
@@ -72,10 +84,10 @@ class ThirdPartyLibraryDetails(object):
 		"""
 		Constructs the linker flags string for building against this library
 		"""
-		components = self._prefixedStrings('', self.ldFlags, engineRoot, False)
+		components = self.resolveRoot(self.ldFlags, engineRoot)
 		if includeLibs == True:
-			components.extend(self._prefixedStrings(self.linkerDirPrefix, self.linkDirs, engineRoot, False))
-			components.extend(self._prefixedStrings('', self.libs, engineRoot, False))
+			components.extend(self.prefixedStrings(self.linkerDirPrefix, self.linkDirs, engineRoot))
+			components.extend(self.resolveRoot(self.libs, engineRoot))
 		
 		return Utility.join(fmt.delim, components, fmt.quotes)
 	
@@ -83,31 +95,31 @@ class ThirdPartyLibraryDetails(object):
 		"""
 		Returns the list of prefix directories for this library, joined using the specified delimiter
 		"""
-		return delimiter.join([d.replace('%UE4_ROOT%', engineRoot) for d in self.prefixDirs])
+		return delimiter.join(self.resolveRoot(self.prefixDirs, engineRoot))
 	
 	def getIncludeDirectories(self, engineRoot, delimiter=' '):
 		"""
 		Returns the list of include directories for this library, joined using the specified delimiter
 		"""
-		return delimiter.join([d.replace('%UE4_ROOT%', engineRoot) for d in self.includeDirs])
+		return delimiter.join(self.resolveRoot(self.includeDirs, engineRoot))
 	
 	def getLinkerDirectories(self, engineRoot, delimiter=' '):
 		"""
 		Returns the list of linker directories for this library, joined using the specified delimiter
 		"""
-		return delimiter.join([d.replace('%UE4_ROOT%', engineRoot) for d in self.linkDirs])
+		return delimiter.join(self.resolveRoot(self.linkDirs, engineRoot))
 	
 	def getLibraryFiles(self, engineRoot, delimiter=' '):
 		"""
 		Returns the list of library files for this library, joined using the specified delimiter
 		"""
-		return delimiter.join([d.replace('%UE4_ROOT%', engineRoot) for d in self.libs])
+		return delimiter.join(self.resolveRoot(self.libs, engineRoot))
 	
 	def getPreprocessorDefinitions(self, engineRoot, delimiter=' '):
 		"""
 		Returns the list of preprocessor definitions for this library, joined using the specified delimiter
 		"""
-		return delimiter.join([d.replace('%UE4_ROOT%', engineRoot) for d in self.definitions])
+		return delimiter.join(self.resolveRoot(self.definitions, engineRoot))
 	
 	def getCMakeFlags(self, engineRoot, fmt):
 		"""
@@ -119,16 +131,13 @@ class ThirdPartyLibraryDetails(object):
 				'-DCMAKE_PREFIX_PATH=' + self.getPrefixDirectories(engineRoot, ';'),
 				'-DCMAKE_INCLUDE_PATH=' + self.getIncludeDirectories(engineRoot, ';'),
 				'-DCMAKE_LIBRARY_PATH=' + self.getLinkerDirectories(engineRoot, ';'),
-			] + self._prefixedStrings('', self.cmakeFlags, engineRoot, False),
+			] + self.resolveRoot(self.cmakeFlags, engineRoot),
 			fmt.quotes
 		)
 	
+	def resolveRoot(self, paths, engineRoot):
+		return [p.replace('%UE4_ROOT%', engineRoot) for p in paths]
 	
-	# "Private" methods
-	
-	def _prefixedStrings(self, prefix, strings, engineRoot, join=True, quotes=True):
-		transformed = [prefix + s.replace('%UE4_ROOT%', engineRoot) for s in strings]
-		if join == True:
-			return Utility.join('" "', transformed, quotes=quotes)
-		else:
-			return transformed
+	def prefixedStrings(self, prefix, strings, engineRoot):
+		resolved = self.resolveRoot(strings, engineRoot)
+		return [prefix + s for s in resolved]
