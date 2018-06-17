@@ -257,7 +257,7 @@ class UnrealManagerBase(object):
 			shutil.rmtree(os.path.join(pluginDir, 'Binaries'), ignore_errors=True)
 			shutil.rmtree(os.path.join(pluginDir, 'Intermediate'), ignore_errors=True)
 	
-	def buildProject(self, dir=os.getcwd(), configuration='DebugGame', args=[]):
+	def buildProject(self, dir=os.getcwd(), configuration='Development', args=[]):
 		"""
 		Builds the editor for the Unreal project in the specified directory, using the specified build configuration
 		"""
