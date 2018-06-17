@@ -272,7 +272,7 @@ class UnrealManagerBase(object):
 		targetName  = projectName + 'Editor'
 		self._runUnrealBuildTool(targetName, self.getPlatformIdentifier(), configuration, ['-project=' + projectFile] + args)
 	
-	def runEditor(self, dir=os.getcwd(), debug=True):
+	def runEditor(self, dir=os.getcwd(), debug=False):
 		"""
 		Runs the editor for the Unreal project in the specified directory
 		"""
