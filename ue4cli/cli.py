@@ -57,7 +57,7 @@ SUPPORTED_COMMANDS = {
 	
 	'build': {
 		'description': 'Build the editor for the Unreal project',
-		'action': lambda m, args: m.buildProject(os.getcwd(), args[0] if len(args) > 0 else 'DebugGame'),
+		'action': lambda m, args: m.buildProject(os.getcwd(), args[0] if len(args) > 0 else 'Development'),
 		'args': '[CONFIGURATION]'
 	},
 	
