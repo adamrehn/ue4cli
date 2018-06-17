@@ -89,7 +89,8 @@ Automation-related commands
 
 These commands relate to Unreal's automation system. Unless explicitly specified, the platform and project file path arguments will be automatically generated when invoking RunUAT:
 
-- `uat [ARGS]` - Invoke `RunUAT` with the specified arguments
+- `ue4 uat [ARGS]` - Invoke `RunUAT` with the specified arguments
+- `ue4 package [EXTRA UAT ARGS]` - Package a Shipping build of the Unreal project in the current directory using common packaging options, storing the result in a subdirectory named "dist"
 
 
 Engine location detection

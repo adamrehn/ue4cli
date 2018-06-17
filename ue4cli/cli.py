@@ -113,6 +113,12 @@ SUPPORTED_COMMANDS = {
 		'description': 'Invoke RunUAT with the specified arguments',
 		'action': lambda m, args: m.runUAT(args),
 		'args': '[ARGS]'
+	},
+	
+	'package': {
+		'description': 'Package a Shipping build of the Unreal project in the current directory using common packaging options, storing the result in a subdirectory named "dist"',
+		'action': lambda m, args: m.packageProject(args),
+		'args': '[EXTRA UAT ARGS]'
 	}
 }
 
@@ -141,7 +147,7 @@ COMMAND_GROUPINGS = [
 	{
 		'name': 'Automation-related commands',
 		'description': 'These commands relate to Unreal\'s automation system. Unless explicitly\nspecified, the platform and project file path arguments will be\nautomatically generated when invoking RunUAT:',
-		'commands': ['uat']
+		'commands': ['uat', 'package']
 	}
 ]
 

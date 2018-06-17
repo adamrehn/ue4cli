@@ -298,6 +298,31 @@ class UnrealManagerBase(object):
 		# Run UAT
 		Utility.run([self.getRunUATScript()] + args, cwd=self.getEngineRoot(), raiseOnError=True)
 	
+	def packageProject(self, extraArgs):
+		"""
+		Packages a Shipping build of the Unreal project in the specified directory, using common packaging options
+		"""
+		
+		# Build the Development version of the Editor, needed for cooking content
+		self.buildProject()
+		
+		# Invoke UAT to package the Shipping build
+		distDir = os.path.join(os.path.abspath(os.getcwd()), 'dist')
+		self.runUAT([
+			'BuildCookRun',
+			'-clientconfig=Shipping',
+			'-serverconfig=Shipping',
+			'-noP4',
+			'-cook',
+			'-allmaps',
+			'-build',
+			'-stage',
+			'-prereqs',
+			'-pak',
+			'-archive',
+			'-archivedirectory=' + distDir
+		])
+	
 	
 	# "Protected" methods
 	
