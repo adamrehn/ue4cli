@@ -81,11 +81,11 @@ class UnrealManagerBase(object):
 		else:
 			return int(version['Changelist'])
 	
-	def getEditorBinary(self):
+	def getEditorBinary(self, cmdVersion=False):
 		"""
 		Determines the location of the UE4Editor binary
 		"""
-		return self.getEngineRoot() + '/Engine/Binaries/' + self.getPlatformIdentifier() + '/UE4Editor' + self._editorPathSuffix()
+		return self.getEngineRoot() + '/Engine/Binaries/' + self.getPlatformIdentifier() + '/UE4Editor' + self._editorPathSuffix(cmdVersion)
 	
 	def getBuildScript(self):
 		"""
@@ -278,7 +278,7 @@ class UnrealManagerBase(object):
 		"""
 		projectFile = self.getProjectFile(dir)
 		extraFlags = ['-debug'] if debug == True else []
-		Utility.run([self.getEditorBinary(), projectFile] + extraFlags, raiseOnError=True)
+		Utility.run([self.getEditorBinary(True), projectFile, '-stdout', '-FullStdOutLogOutput'] + extraFlags, raiseOnError=True)
 	
 	def runUAT(self, args):
 		"""
@@ -334,7 +334,7 @@ class UnrealManagerBase(object):
 		hash.update(json.dumps(versionDetails, sort_keys=True, indent=0).encode('utf-8'))
 		return hash.hexdigest()
 	
-	def _editorPathSuffix(self):
+	def _editorPathSuffix(self, cmdVersion):
 		"""
 		Returns the suffix for the path to the UE4Editor binary
 		"""

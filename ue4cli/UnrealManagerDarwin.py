@@ -31,7 +31,7 @@ class UnrealManagerDarwin(UnrealManagerUnix):
 		# Could not auto-detect the Unreal Engine location
 		raise UnrealManagerException('could not detect the location of the latest installed Unreal Engine 4 version')
 	
-	def _editorPathSuffix(self):
+	def _editorPathSuffix(self, cmdVersion):
 		return '.app/Contents/MacOS/UE4Editor'
 	
 	def _transformBuildToolPlatform(self, platform):

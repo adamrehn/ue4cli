@@ -45,7 +45,7 @@ class UnrealManagerLinux(UnrealManagerUnix):
 		# Could not auto-detect the Unreal Engine location
 		raise UnrealManagerException('could not detect the location of the latest installed Unreal Engine 4 version')
 	
-	def _editorPathSuffix(self):
+	def _editorPathSuffix(self, cmdVersion):
 		return ''
 	
 	# Under Linux, we always need to build against Unreal's bundled libc++

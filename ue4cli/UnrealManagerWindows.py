@@ -72,8 +72,8 @@ class UnrealManagerWindows(UnrealManagerBase):
 		# Could not auto-detect the Unreal Engine location
 		raise UnrealManagerException('could not detect the location of the latest installed Unreal Engine 4 version')
 	
-	def _editorPathSuffix(self):
-		return '.exe'
+	def _editorPathSuffix(self, cmdVersion):
+		return '-Cmd.exe' if cmdVersion == True else '.exe'
 	
 	def _runDotNetApplication(self, exeFile, args = []):
 		return Utility.capture([exeFile] + args, raiseOnError=True)
