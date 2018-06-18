@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
 	name='ue4cli',
-	version='0.0.7',
+	version='0.0.8',
 	description='Command-line interface for Unreal Engine 4',
 	classifiers=[
 		'License :: OSI Approved :: MIT License',
