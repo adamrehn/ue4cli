@@ -5,7 +5,7 @@ from .UE4BuildInterrogator import UE4BuildInterrogator
 from .CachedDataManager import CachedDataManager
 from .CMakeCustomFlags import CMakeCustomFlags
 from .Utility import Utility
-import glob, hashlib, json, os, shutil
+import glob, hashlib, json, os, re, shutil, sys
 
 class UnrealManagerBase(object):
 	"""
@@ -257,7 +257,7 @@ class UnrealManagerBase(object):
 			shutil.rmtree(os.path.join(pluginDir, 'Binaries'), ignore_errors=True)
 			shutil.rmtree(os.path.join(pluginDir, 'Intermediate'), ignore_errors=True)
 	
-	def buildProject(self, dir=os.getcwd(), configuration='Development', args=[]):
+	def buildProject(self, dir=os.getcwd(), configuration='Development', args=[], suppressOutput=False):
 		"""
 		Builds the editor for the Unreal project in the specified directory, using the specified build configuration
 		"""
@@ -270,7 +270,7 @@ class UnrealManagerBase(object):
 		projectFile = self.getProjectFile(dir)
 		projectName = self.getProjectName(dir)
 		targetName  = projectName + 'Editor'
-		self._runUnrealBuildTool(targetName, self.getPlatformIdentifier(), configuration, ['-project=' + projectFile] + args)
+		self._runUnrealBuildTool(targetName, self.getPlatformIdentifier(), configuration, ['-project=' + projectFile] + args, capture=suppressOutput)
 	
 	def runEditor(self, dir=os.getcwd(), debug=False):
 		"""
@@ -322,6 +322,86 @@ class UnrealManagerBase(object):
 			'-archive',
 			'-archivedirectory=' + distDir
 		])
+	
+	def runAutomationCommands(self, projectFile, commands, capture=False):
+		'''
+		Invokes the Automation Test commandlet for the specified project with the supplied automation test commands
+		'''
+		
+		# IMPORTANT IMPLEMENTATION NOTE:
+		# We need to format the command as a string and execute it using a shell in order to
+		# ensure the "-ExecCmds" argument will be parsed correctly under Windows. This is because
+		# the WinMain() function uses GetCommandLineW() to retrieve the raw command-line string,
+		# rather than using an argv-style structure. The string is then passed to FParse::Value(),
+		# which checks for the presence of a quote character after the equals sign to determine if
+		# whitespace should be stripped or preserved. Without the quote character, the spaces in the
+		# argument payload will be stripped out, corrupting our list of automation commands and
+		# preventing them from executing correctly.
+		
+		command = '{} {}'.format(Utility.escapePathForShell(self.getEditorBinary(True)), Utility.escapePathForShell(projectFile))
+		command += ' -game -buildmachine -stdout -fullstdoutlogoutput -forcelogflush -unattended -nopause -nullrhi'
+		command += ' -ExecCmds="automation {};quit"'.format(';'.join(commands))
+		
+		if capture == True:
+			return Utility.capture(command, shell=True)
+		else:
+			Utility.run(command, shell=True)
+	
+	def listAutomationTests(self, projectFile):
+		'''
+		Returns the list of supported automation tests for the specified project
+		'''
+		tests = []
+		testRegex = re.compile('.*LogAutomationCommandLine: Display: \t(.+)')
+		logOutput = self.runAutomationCommands(projectFile, ['List'], capture=True)
+		for line in logOutput.stdout.split('\n'):
+			matches = testRegex.search(line)
+			if matches != None:
+				tests.append(matches[1].strip())
+		
+		return sorted(tests)
+	
+	def automationTests(self, dir=os.getcwd(), args=[]):
+		'''
+		Performs automation tests for the Unreal project in the specified directory
+		'''
+		
+		# Verify that at least one argument was supplied
+		if len(args) == 0:
+			raise RuntimeError('at least one test name must be specified')
+		
+		# Build the project if it isn't already built
+		Utility.printStderr('Ensuring project is built...')
+		self.buildProject(dir, suppressOutput=True)
+		
+		# Determine which arguments we are passing to the automation test commandlet
+		projectFile = self.getProjectFile(dir)
+		if '--list' in args:
+			Utility.printStderr('Retrieving automation test list...')
+			print('\n'.join(self.listAutomationTests(projectFile)))
+		else:
+			
+			# Sanitise the user-supplied arguments to prevent command injection
+			sanitised = [arg.replace(',', '').replace(';', '') for arg in args]
+			command = ['RunAll'] if '--all' in args else ['RunTests ' + '+'.join(sanitised)]
+			
+			# Attempt to run the automation tests
+			Utility.printStderr('Running automation tests...')
+			logOutput = self.runAutomationCommands(projectFile, command, capture=True)
+			
+			# Propagate the log output
+			print(logOutput.stdout)
+			print(logOutput.stderr)
+			
+			# Detect abnormal exits (those not triggered by `automation quit`)
+			if 'PlatformMisc::RequestExit(' not in logOutput.stdout:
+				sys.exit(1)
+			
+			# If automation testing failed, propagate the failure
+			errorStrings = ['Incorrect automation command syntax!', 'Automation Test Failed', 'Found 0 Automation Tests, based on']
+			for errorStr in errorStrings:
+				if errorStr in logOutput.stdout:
+					sys.exit(1)
 	
 	
 	# "Protected" methods
@@ -402,7 +482,7 @@ class UnrealManagerBase(object):
 		platform = self._transformBuildToolPlatform(platform)
 		arguments = [self.getBuildScript(), target, platform, configuration] + args
 		if capture == True:
-			Utility.capture(arguments, cwd=self.getEngineRoot(), raiseOnError=True)
+			return Utility.capture(arguments, cwd=self.getEngineRoot(), raiseOnError=True)
 		else:
 			Utility.run(arguments, cwd=self.getEngineRoot(), raiseOnError=True)
 	

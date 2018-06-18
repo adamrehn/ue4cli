@@ -1,11 +1,12 @@
 from __future__ import print_function
-import subprocess, sys
+import platform, shellescape, subprocess, sys
 
 class CommandOutput(object):
 	"""
 	Helper class to wrap the output of Utility.capture()
 	"""
-	def __init__(self, stdout, stderr):
+	def __init__(self, returncode, stdout, stderr):
+		self.returncode = returncode
 		self.stdout = stdout
 		self.stderr = stderr
 
@@ -59,6 +60,16 @@ class Utility:
 		return list([p.replace('\\', '/') for p in paths])
 	
 	@staticmethod
+	def escapePathForShell(path):
+		"""
+		Escapes a filesystem path for use as a command-line argument
+		"""
+		if platform.system() == 'Windows':
+			return '"{}"'.format(path.replace('"', '""'))
+		else:
+			return shellescape.quote(path)
+	
+	@staticmethod
 	def join(delim, items, quotes=False):
 		"""
 		Joins the supplied list of strings after removing any empty strings from the list
@@ -79,7 +90,7 @@ class Utility:
 		"""
 		
 		# Attempt to execute the child process
-		proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd, shell=shell, universal_newlines=True)
+		proc = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd, shell=shell, universal_newlines=True)
 		(stdout, stderr) = proc.communicate(input)
 		
 		# If the child process failed and we were asked to raise an exception, do so
@@ -91,7 +102,7 @@ class Utility:
 				'\nstderr: "' + stderr + '"'
 			)
 		
-		return CommandOutput(stdout, stderr)
+		return CommandOutput(proc.returncode, stdout, stderr)
 	
 	@staticmethod
 	def run(command, cwd=None, shell=False, raiseOnError=False):
@@ -101,3 +112,4 @@ class Utility:
 		returncode = subprocess.call(command, cwd=cwd, shell=shell)
 		if raiseOnError == True and returncode != 0:
 			raise Exception('child process ' + str(command) + ' failed with exit code ' + str(returncode))
+		return returncode

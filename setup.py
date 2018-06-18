@@ -20,6 +20,7 @@ setup(
 	license='MIT',
 	packages=['ue4cli'],
 	zip_safe=True,
+	install_requires = ['shellescape'],
 	entry_points = {
 		'console_scripts': ['ue4=ue4cli.cli:main']
 	}

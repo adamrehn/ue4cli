@@ -67,6 +67,12 @@ SUPPORTED_COMMANDS = {
 		'args': None
 	},
 	
+	'test': {
+		'description': 'Run automation tests for the Unreal project',
+		'action': lambda m, args: m.automationTests(os.getcwd(), args),
+		'args': '[--list] [--all] TEST1 TEST2 TESTN'
+	},
+	
 	'libs': {
 		'description': 'List the supported third-party libs',
 		'action': lambda m, args: print('\n'.join(m.listThirdPartyLibs())),
@@ -137,7 +143,7 @@ COMMAND_GROUPINGS = [
 	{
 		'name': 'Project-related commands',
 		'description': 'These commands relate to an individual Unreal project, and will look\nfor a .uproject file located in the current working directory:',
-		'commands': ['run', 'gen', 'build', 'clean']
+		'commands': ['run', 'gen', 'build', 'clean', 'test']
 	},
 	{
 		'name': 'Library-related commands',
