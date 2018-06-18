@@ -351,15 +351,24 @@ class UnrealManagerBase(object):
 		'''
 		Returns the list of supported automation tests for the specified project
 		'''
-		tests = []
+		
+		# Attempt to retrieve the list of automation tests
+		tests = set()
 		testRegex = re.compile('.*LogAutomationCommandLine: Display: \t(.+)')
 		logOutput = self.runAutomationCommands(projectFile, ['List'], capture=True)
 		for line in logOutput.stdout.split('\n'):
 			matches = testRegex.search(line)
 			if matches != None:
-				tests.append(matches[1].strip())
+				tests.add(matches[1].strip())
 		
-		return sorted(tests)
+		# Detect if the Editor terminated abnormally (i.e. not triggered by `automation quit`)
+		if 'PlatformMisc::RequestExit(' not in logOutput.stdout:
+			raise RuntimeError(
+				'failed to retrieve the list of automation tests!' +
+				' stdout was: "{}", stderr was: "{}"'.format(logOutput.stdout, logOutput.stderr)
+			)
+		
+		return sorted(list(tests))
 	
 	def automationTests(self, dir=os.getcwd(), args=[]):
 		'''
@@ -393,7 +402,7 @@ class UnrealManagerBase(object):
 			print(logOutput.stdout)
 			print(logOutput.stderr)
 			
-			# Detect abnormal exits (those not triggered by `automation quit`)
+			# Detect abnormal exit conditions (those not triggered by `automation quit`)
 			if 'PlatformMisc::RequestExit(' not in logOutput.stdout:
 				sys.exit(1)
 			
