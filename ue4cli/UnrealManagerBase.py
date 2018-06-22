@@ -272,12 +272,12 @@ class UnrealManagerBase(object):
 		targetName  = projectName + 'Editor'
 		self._runUnrealBuildTool(targetName, self.getPlatformIdentifier(), configuration, ['-project=' + projectFile] + args, capture=suppressOutput)
 	
-	def runEditor(self, dir=os.getcwd(), debug=False):
+	def runEditor(self, dir=os.getcwd(), debug=False, args=[]):
 		"""
 		Runs the editor for the Unreal project in the specified directory
 		"""
 		projectFile = self.getProjectFile(dir)
-		extraFlags = ['-debug'] if debug == True else []
+		extraFlags = ['-debug'] + args if debug == True else args
 		Utility.run([self.getEditorBinary(True), projectFile, '-stdout', '-FullStdOutLogOutput'] + extraFlags, raiseOnError=True)
 	
 	def runUAT(self, args):

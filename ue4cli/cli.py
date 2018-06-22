@@ -45,8 +45,12 @@ SUPPORTED_COMMANDS = {
 	
 	'run': {
 		'description': 'Run the editor for the Unreal project',
-		'action': lambda m, args: m.runEditor(os.getcwd(), True if len(args) > 0 and args[0].lower().strip('-') == 'debug' else False),
-		'args': '[--debug]'
+		'action': lambda m, args: m.runEditor(
+			os.getcwd(),
+			True if '--debug' in args else False,
+			list([arg for arg in args if arg != '--debug'])
+		),
+		'args': '[--debug] [EXTRA ARGS]'
 	},
 	
 	'gen': {
