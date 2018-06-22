@@ -391,8 +391,22 @@ class UnrealManagerBase(object):
 		else:
 			
 			# Sanitise the user-supplied arguments to prevent command injection
-			sanitised = [arg.replace(',', '').replace(';', '') for arg in args]
-			command = ['RunAll'] if '--all' in args else ['RunTests ' + '+'.join(sanitised)]
+			runAll = '--all' in args
+			runFilter = '--filter' in args
+			sanitised = [arg.replace(',', '').replace(';', '') for arg in args if arg not in ['--all', '--filter']]
+			command = []
+			
+			# Determine if we are enqueueing a 'RunAll' command
+			if runAll == True:
+				command.append('RunAll')
+			
+			# Determine if we are enqueueing a 'RunFilter' command
+			if runFilter == True and len(sanitised) > 0:
+				command.append('RunFilter ' + sanitised.pop(0))
+			
+			# Enqueue a 'RunTests' command for any individual test names that were specified
+			if len(sanitised) > 0:
+				command.append('RunTests Now ' + '+'.join(sanitised))
 			
 			# Attempt to run the automation tests
 			Utility.printStderr('Running automation tests...')
@@ -407,7 +421,12 @@ class UnrealManagerBase(object):
 				sys.exit(1)
 			
 			# If automation testing failed, propagate the failure
-			errorStrings = ['Incorrect automation command syntax!', 'Automation Test Failed', 'Found 0 Automation Tests, based on']
+			errorStrings = [
+				'Incorrect automation command syntax!',
+				'Automation Test Failed',
+				'Found 0 Automation Tests, based on',
+				'is not a valid flag to filter on!'
+			]
 			for errorStr in errorStrings:
 				if errorStr in logOutput.stdout:
 					sys.exit(1)

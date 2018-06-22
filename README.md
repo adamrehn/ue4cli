@@ -69,7 +69,7 @@ These commands relate to an individual Unreal project, and will look for a `.upr
 - `ue4 gen` - Generate IDE project files for the Unreal project
 - `ue4 build [CONFIGURATION]` - Build the editor for the Unreal project
 - `ue4 clean` - Clean the Unreal project
-- `ue4 test [--list] [--all] TEST1 TEST2 TESTN` - Run automation tests for the Unreal project
+- `ue4 test [--list] [--all] [--filter FILTER] TEST1 TEST2 TESTN` - Run automation tests for the Unreal project
 
 
 Library-related commands
