@@ -230,13 +230,13 @@ class UnrealManagerBase(object):
 		details = self.getThirdpartyLibs(libs, includePlatformDefaults=platformDefaults)
 		return details.getPreprocessorDefinitions(self.getEngineRoot(), delimiter='\n')
 	
-	def generateProjectFiles(self, dir=os.getcwd()):
+	def generateProjectFiles(self, dir=os.getcwd(), args=[]):
 		"""
 		Generates IDE project files for the Unreal project in the specified directory
 		"""
 		genScript = self.getGenerateScript()
 		projectFile = self.getProjectFile(dir)
-		Utility.run([genScript, '-project=' + projectFile, '-game', '-engine'], cwd=os.path.dirname(genScript), raiseOnError=True)
+		Utility.run([genScript, '-project=' + projectFile, '-game', '-engine'] + args, cwd=os.path.dirname(genScript), raiseOnError=True)
 	
 	def cleanProject(self, dir=os.getcwd()):
 		"""

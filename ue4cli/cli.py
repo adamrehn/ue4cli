@@ -55,8 +55,8 @@ SUPPORTED_COMMANDS = {
 	
 	'gen': {
 		'description': 'Generate IDE project files for the Unreal project',
-		'action': lambda m, args: m.generateProjectFiles(os.getcwd()),
-		'args': None
+		'action': lambda m, args: m.generateProjectFiles(os.getcwd(), args),
+		'args': '[EXTRA ARGS]'
 	},
 	
 	'build': {

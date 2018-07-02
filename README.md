@@ -66,7 +66,7 @@ Project-related commands
 These commands relate to an individual Unreal project, and will look for a `.uproject` file located in the current working directory:
 
 - `ue4 run [--debug]` - Run the editor for the Unreal project
-- `ue4 gen` - Generate IDE project files for the Unreal project
+- `ue4 gen [EXTRA ARGS]` - Generate IDE project files for the Unreal project
 - `ue4 build [CONFIGURATION]` - Build the editor for the Unreal project
 - `ue4 clean` - Clean the Unreal project
 - `ue4 test [--list] [--all] [--filter FILTER] TEST1 TEST2 TESTN` - Run automation tests for the Unreal project
