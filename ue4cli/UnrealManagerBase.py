@@ -265,6 +265,7 @@ class UnrealManagerBase(object):
 		# If the project is a pure Blueprint project, there is no C++ code to build
 		if os.path.exists(os.path.join(dir, 'Source')) == False:
 			Utility.printStderr('Pure Blueprint project, nothing to build.')
+			sys.exit(0)
 		
 		# Verify that the specified build configuration is valid
 		if configuration not in self.validBuildConfigurations():
