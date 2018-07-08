@@ -47,7 +47,7 @@ class UnrealManagerWindows(UnrealManagerBase):
 	def getRunUATScript(self):
 		return self.getEngineRoot() + '\\Engine\\Build\\BatchFiles\\RunUAT.bat'
 	
-	def generateProjectFiles(self, dir=os.getcwd()):
+	def generateProjectFiles(self, dir=os.getcwd(), args=[]):
 		
 		# If we are using our custom batch file, use the appropriate arguments
 		genScript = self.getGenerateScript()
@@ -56,7 +56,7 @@ class UnrealManagerWindows(UnrealManagerBase):
 		if '.ue4\\GenerateProjectFiles.bat' in genScript:
 			Utility.run([genScript, projectFile], raiseOnError=True)
 		else:
-			super(UnrealManagerWindows, self).generateProjectFiles(dir)
+			super(UnrealManagerWindows, self).generateProjectFiles(dir, args)
 	
 	def _detectEngineRoot(self):
 		
