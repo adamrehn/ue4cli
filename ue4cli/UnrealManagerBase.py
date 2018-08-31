@@ -303,20 +303,24 @@ class UnrealManagerBase(object):
 		# Run UAT
 		Utility.run([self.getRunUATScript()] + args, cwd=self.getEngineRoot(), raiseOnError=True)
 	
-	def packageProject(self, extraArgs):
+	def packageProject(self, configuration='Shipping', extraArgs=[]):
 		"""
-		Packages a Shipping build of the Unreal project in the specified directory, using common packaging options
+		Packages a build of the Unreal project in the specified directory, using common packaging options
 		"""
+		
+		# Verify that the specified build configuration is valid
+		if configuration not in self.validBuildConfigurations():
+			raise UnrealManagerException('invalid build configuration "' + configuration + '"')
 		
 		# Build the Development version of the Editor, needed for cooking content
 		self.buildProject()
 		
-		# Invoke UAT to package the Shipping build
+		# Invoke UAT to package the build
 		distDir = os.path.join(os.path.abspath(os.getcwd()), 'dist')
 		self.runUAT([
 			'BuildCookRun',
-			'-clientconfig=Shipping',
-			'-serverconfig=Shipping',
+			'-clientconfig=' + configuration,
+			'-serverconfig=' + configuration,
 			'-noP4',
 			'-cook',
 			'-allmaps',
@@ -326,7 +330,7 @@ class UnrealManagerBase(object):
 			'-pak',
 			'-archive',
 			'-archivedirectory=' + distDir
-		])
+		] + extraArgs)
 	
 	def runAutomationCommands(self, projectFile, commands, capture=False):
 		'''

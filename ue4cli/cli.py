@@ -126,9 +126,9 @@ SUPPORTED_COMMANDS = {
 	},
 	
 	'package': {
-		'description': 'Package a Shipping build of the Unreal project in the current directory using common packaging options, storing the result in a subdirectory named "dist"',
-		'action': lambda m, args: m.packageProject(args),
-		'args': '[EXTRA UAT ARGS]'
+		'description': 'Package a build of the Unreal project in the current directory using common packaging options, storing the result in a subdirectory named "dist". Default configuration is Shipping.',
+		'action': lambda m, args: m.packageProject(args[0] if len(args) > 0 else 'Shipping', args[1:]),
+		'args': '[CONFIGURATION] [EXTRA UAT ARGS]'
 	}
 }
 
