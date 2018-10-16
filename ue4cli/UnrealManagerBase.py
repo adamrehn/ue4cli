@@ -348,7 +348,7 @@ class UnrealManagerBase(object):
 		# preventing them from executing correctly.
 		
 		command = '{} {}'.format(Utility.escapePathForShell(self.getEditorBinary(True)), Utility.escapePathForShell(projectFile))
-		command += ' -game -buildmachine -stdout -fullstdoutlogoutput -forcelogflush -unattended -nopause -nullrhi'
+		command += ' -game -buildmachine -stdout -fullstdoutlogoutput -forcelogflush -unattended -nopause -nullrhi -nosplash'
 		command += ' -ExecCmds="automation {};quit"'.format(';'.join(commands))
 		
 		if capture == True:
