@@ -12,7 +12,8 @@ class CachedDataManager(object):
 		"""
 		Clears any cached data we have stored about specific engine versions
 		"""
-		shutil.rmtree(CachedDataManager._cacheDir())
+		if os.path.exists(CachedDataManager._cacheDir()) == True:
+			shutil.rmtree(CachedDataManager._cacheDir())
 	
 	@staticmethod
 	def getCachedDataKey(engineVersionHash, key):
