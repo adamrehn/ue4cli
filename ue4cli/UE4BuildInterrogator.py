@@ -129,12 +129,16 @@ class UE4BuildInterrogator(object):
 		tempDir = tempfile.mkdtemp()
 		jsonFile = os.path.join(tempDir, 'ubt_output.json')
 		
-		# If this is an Installed Build of the Engine, temporarily mark it as a source build
-		# (This ensures UBT will report the full set of third-party libraries, not just the small handful that Installed Builds report)
+		# Installed Builds of the Engine only contain a small handful of third-party libraries, rather than the full set
+		# included in a source build of the Engine. However, if the ThirdParty directory from a source build is copied
+		# into an Installed Build and the `InstalledBuild.txt` sentinel file is temporarily renamed, we can get the best
+		# of both worlds and utilise the full set of third-party libraries. Enable this sentinel renaming behaviour only
+		# if you have copied the ThirdParty directory from a source build into your Installed Build, or else the UBT
+		# command will fail trying to rebuild UnrealHeaderTool.
 		sentinelFile = os.path.join(self.engineRoot, 'Engine', 'Build', 'InstalledBuild.txt')
 		sentinelBackup = sentinelFile + '.bak'
-		isInstalled = os.path.exists(sentinelFile) and os.environ.get('UE4CLI_NO_SENTINEL_RENAME', '0') != '1'
-		if isInstalled == True:
+		renameSentinel = os.path.exists(sentinelFile) and os.environ.get('UE4CLI_SENTINEL_RENAME', '0') == '1'
+		if renameSentinel == True:
 			shutil.move(sentinelFile, sentinelBackup)
 		
 		# Invoke UnrealBuildTool in JSON export mode (make sure we specify gathering mode, since this is a prerequisite of JSON export)
@@ -142,7 +146,7 @@ class UE4BuildInterrogator(object):
 		try:
 			self.runUBTFunc('UE4Editor', platformIdentifier, configuration, ['-gather', '-jsonexport=' + jsonFile, '-SkipBuild'])
 		finally:
-			if isInstalled == True:
+			if renameSentinel == True:
 				shutil.move(sentinelBackup, sentinelFile)
 		
 		# Parse the JSON output
