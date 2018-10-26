@@ -129,9 +129,21 @@ class UE4BuildInterrogator(object):
 		tempDir = tempfile.mkdtemp()
 		jsonFile = os.path.join(tempDir, 'ubt_output.json')
 		
+		# If this is an Installed Build of the Engine, temporarily mark it as a source build
+		# (This ensures UBT will report the full set of third-party libraries, not just the small handful that Installed Builds report)
+		sentinelFile = os.path.join(self.engineRoot, 'Engine', 'Build', 'InstalledBuild.txt')
+		sentinelBackup = sentinelFile + '.bak'
+		isInstalled = os.path.exists(sentinelFile)
+		if isInstalled == True:
+			shutil.move(sentinelFile, sentinelBackup)
+		
 		# Invoke UnrealBuildTool in JSON export mode (make sure we specify gathering mode, since this is a prerequisite of JSON export)
-		target = 'UE4Editor' if platform.system() == 'Linux' else 'UE4Game'
-		self.runUBTFunc(target, platformIdentifier, configuration, ['-gather', '-jsonexport=' + jsonFile, '-SkipBuild'])
+		# (Ensure we always perform sentinel file cleanup even when errors occur)
+		try:
+			self.runUBTFunc('UE4Editor', platformIdentifier, configuration, ['-gather', '-jsonexport=' + jsonFile, '-SkipBuild'])
+		finally:
+			if isInstalled == True:
+				shutil.move(sentinelBackup, sentinelFile)
 		
 		# Parse the JSON output
 		result = json.loads(Utility.readFile(jsonFile))
