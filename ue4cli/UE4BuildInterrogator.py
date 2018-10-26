@@ -133,7 +133,7 @@ class UE4BuildInterrogator(object):
 		# (This ensures UBT will report the full set of third-party libraries, not just the small handful that Installed Builds report)
 		sentinelFile = os.path.join(self.engineRoot, 'Engine', 'Build', 'InstalledBuild.txt')
 		sentinelBackup = sentinelFile + '.bak'
-		isInstalled = os.path.exists(sentinelFile)
+		isInstalled = os.path.exists(sentinelFile) and os.environ.get('UE4CLI_NO_SENTINEL_RENAME', '0') != '1'
 		if isInstalled == True:
 			shutil.move(sentinelFile, sentinelBackup)
 		
