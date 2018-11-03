@@ -156,6 +156,11 @@ class UE4BuildInterrogator(object):
 		modules = [result['Modules'][key] for key in result['Modules']]
 		thirdparty = list([m for m in modules if m['Type'] == 'EngineThirdParty'])
 		
+		# Filter out any modules from outside the Engine/Source/ThirdParty directory
+		# (These are usually dependencies nested inside experimental Engine plugins)
+		thirdPartyRoot = os.path.join(self.engineRoot, 'Engine', 'Source', 'ThirdParty')
+		thirdparty = list([m for m in modules if thirdPartyRoot in m['Directory']])
+		
 		# Remove the temp directory
 		try:
 			shutil.rmtree(tempDir)
