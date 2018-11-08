@@ -153,11 +153,11 @@ class UE4BuildInterrogator(object):
 		result = json.loads(Utility.readFile(jsonFile))
 		
 		# Extract the list of third-party library modules
+		# (Note that since UE4.21, modules no longer have a "Type" field, so we must
+		# rely on the "Directory" field filter below to identify third-party libraries)
 		modules = [result['Modules'][key] for key in result['Modules']]
-		thirdparty = list([m for m in modules if m['Type'] == 'EngineThirdParty'])
 		
 		# Filter out any modules from outside the Engine/Source/ThirdParty directory
-		# (These are usually dependencies nested inside experimental Engine plugins)
 		thirdPartyRoot = os.path.join(self.engineRoot, 'Engine', 'Source', 'ThirdParty')
 		thirdparty = list([m for m in modules if thirdPartyRoot in m['Directory']])
 		
