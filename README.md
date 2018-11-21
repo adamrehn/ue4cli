@@ -7,7 +7,7 @@ This package implements a command-line tool called `ue4` that provides a simplif
 - Provide the ability to easily generate IDE project files under Linux, where no shell integration currently exists to perform this task from outside the Editor.
 - Determine the compiler flags required to build third-party libraries for use within Engine modules. This is particularly important under macOS and Linux where [symbol interposition](https://developer.apple.com/library/content/documentation/DeveloperTools/Conceptual/DynamicLibraries/100-Articles/DynamicLibraryUsageGuidelines.html#//apple_ref/doc/uid/TP40001928-SW9) can cause clashes between external libraries and those bundled in the `ThirdParty` directory of the Engine source tree, and under Linux where libraries need to build against the Engine's bundled version of libc++.
 
-This package requires **Unreal Engine 4.19 or newer** (since 4.19 is the first release to include the necessary patches to UnrealBuildTool.) This package has been tested with Python 2.7 and Python 3.6.
+This package requires **Unreal Engine 4.19 or newer** (since 4.19 is the first release to include the necessary patches to UnrealBuildTool.) The package also requires Python 3.5 or newer.
 
 
 Contents

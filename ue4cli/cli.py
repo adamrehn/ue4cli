@@ -1,5 +1,5 @@
-from __future__ import print_function
 from collections import OrderedDict
+from .PluginManager import PluginManager
 from .UnrealManagerException import UnrealManagerException
 from .UnrealManagerFactory import UnrealManagerFactory
 import os, sys
@@ -158,6 +158,11 @@ COMMAND_GROUPINGS = [
 		'name': 'Automation-related commands',
 		'description': 'These commands relate to Unreal\'s automation system. Unless explicitly\nspecified, the platform and project file path arguments will be\nautomatically generated when invoking RunUAT:',
 		'commands': ['uat', 'package']
+	},
+	{
+		'name': 'Commands defined by plugins',
+		'description': 'These commands are defined by currently installed ue4cli plugins:',
+		'commands': []
 	}
 ]
 
@@ -171,16 +176,27 @@ def displayHelp():
 		print()
 		print(group['description'])
 		print()
-		for command in group['commands']:
-			commandStr = '\t' + command
-			if SUPPORTED_COMMANDS[command]['args'] != None:
-				commandStr += ' ' + SUPPORTED_COMMANDS[command]['args']
-			commandStr += ' - ' + SUPPORTED_COMMANDS[command]['description']
-			print(commandStr)
+		if len(group['commands']) == 0:
+			print('\t(No commands in this group)')
+		else:
+			for command in group['commands']:
+				commandStr = '\t' + command
+				if SUPPORTED_COMMANDS[command]['args'] != None:
+					commandStr += ' ' + SUPPORTED_COMMANDS[command]['args']
+				commandStr += ' - ' + SUPPORTED_COMMANDS[command]['description']
+				print(commandStr)
 		print()
 
 def main():
 	try:
+		
+		# Perform plugin detection and register our detected plugins
+		plugins = PluginManager.getPlugins()
+		for command in plugins:
+			details = plugins[command]
+			if command not in SUPPORTED_COMMANDS:
+				SUPPORTED_COMMANDS[command] = details
+				COMMAND_GROUPINGS[-1]['commands'].append(command)
 		
 		# Create the Unreal manager instance for the current platform
 		manager = UnrealManagerFactory.create()
