@@ -34,7 +34,15 @@ class UnrealManagerBase(object):
 		"""
 		Sets a user-specified directory as the root engine directory, overriding any auto-detection
 		"""
+				
+		# Set the new root directory
 		ConfigurationManager.setConfigKey('rootDirOverride', rootDir)
+		
+		# Check that the specified directory is valid and warn the user if it is not
+		try:
+			self.getEngineVersion()
+		except:
+			print('Warning: the specified directory does not appear to contain a valid version of the Unreal Engine.')
 	
 	def clearEngineRootOverride(self):
 		"""
