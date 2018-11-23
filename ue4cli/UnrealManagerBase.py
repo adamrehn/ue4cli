@@ -279,9 +279,9 @@ class UnrealManagerBase(object):
 	
 	def runEditor(self, dir=os.getcwd(), debug=False, args=[]):
 		"""
-		Runs the editor for the Unreal project in the specified directory
+		Runs the editor for the Unreal project in the specified directory (or without a project if dir is None)
 		"""
-		projectFile = self.getProjectFile(dir)
+		projectFile = self.getProjectFile(dir) if dir is not None else ''
 		extraFlags = ['-debug'] + args if debug == True else args
 		Utility.run([self.getEditorBinary(True), projectFile, '-stdout', '-FullStdOutLogOutput'] + extraFlags, raiseOnError=True)
 	

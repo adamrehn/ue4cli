@@ -43,6 +43,12 @@ SUPPORTED_COMMANDS = {
 		'args': '[major|minor|patch|full|short]'
 	},
 	
+	'editor': {
+		'description': 'Run the editor without an Unreal project (useful for creating new projects)',
+		'action': lambda m, args: m.runEditor(None, False, args),
+		'args': '[EXTRA ARGS]'
+	},
+	
 	'run': {
 		'description': 'Run the editor for the Unreal project',
 		'action': lambda m, args: m.runEditor(
@@ -142,7 +148,7 @@ COMMAND_GROUPINGS = [
 	{
 		'name': 'Engine-related commands',
 		'description': 'These commands relate to the Unreal Engine itself:',
-		'commands': ['root', 'version']
+		'commands': ['root', 'version', 'editor']
 	},
 	{
 		'name': 'Project-related commands',
