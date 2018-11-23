@@ -58,6 +58,7 @@ These commands relate to the Unreal Engine itself:
 
 - `ue4 root` - Print the path to the root directory of the Unreal Engine
 - `ue4 version [major|minor|patch|full|short]` - Print the version string of the Unreal Engine (default format is "full")
+- `ue4 editor [EXTRA ARGS]` - Run the editor without an Unreal project (useful for creating new projects)
 
 
 Project-related commands
