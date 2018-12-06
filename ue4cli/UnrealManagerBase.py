@@ -242,6 +242,13 @@ class UnrealManagerBase(object):
 		"""
 		Generates IDE project files for the Unreal project in the specified directory
 		"""
+		
+		# If the project is a pure Blueprint project, then we cannot generate project files
+		if os.path.exists(os.path.join(dir, 'Source')) == False:
+			Utility.printStderr('Pure Blueprint project, nothing to generate project files for.')
+			sys.exit(0)
+		
+		# Generate the project files
 		genScript = self.getGenerateScript()
 		projectFile = self.getProjectFile(dir)
 		Utility.run([genScript, '-project=' + projectFile, '-game', '-engine'] + args, cwd=os.path.dirname(genScript), raiseOnError=True)
