@@ -83,6 +83,12 @@ SUPPORTED_COMMANDS = {
 		'args': '[--list] [--all] [--filter FILTER] TEST1 TEST2 TESTN'
 	},
 	
+	'package': {
+		'description': 'Package a build of the Unreal project in the current directory using common packaging options, storing the result in a subdirectory named "dist". Default configuration is Shipping.',
+		'action': lambda m, args: m.packageProject(args[0] if len(args) > 0 else 'Shipping', args[1:]),
+		'args': '[CONFIGURATION] [EXTRA UAT ARGS]'
+	},
+	
 	'libs': {
 		'description': 'List the supported third-party libs',
 		'action': lambda m, args: print('\n'.join(m.listThirdPartyLibs())),
@@ -129,12 +135,6 @@ SUPPORTED_COMMANDS = {
 		'description': 'Invoke RunUAT with the specified arguments',
 		'action': lambda m, args: m.runUAT(args),
 		'args': '[ARGS]'
-	},
-	
-	'package': {
-		'description': 'Package a build of the Unreal project in the current directory using common packaging options, storing the result in a subdirectory named "dist". Default configuration is Shipping.',
-		'action': lambda m, args: m.packageProject(args[0] if len(args) > 0 else 'Shipping', args[1:]),
-		'args': '[CONFIGURATION] [EXTRA UAT ARGS]'
 	}
 }
 
@@ -153,7 +153,7 @@ COMMAND_GROUPINGS = [
 	{
 		'name': 'Project-related commands',
 		'description': 'These commands relate to an individual Unreal project, and will look\nfor a .uproject file located in the current working directory:',
-		'commands': ['run', 'gen', 'build', 'clean', 'test']
+		'commands': ['run', 'gen', 'build', 'clean', 'test', 'package']
 	},
 	{
 		'name': 'Library-related commands',
@@ -163,7 +163,7 @@ COMMAND_GROUPINGS = [
 	{
 		'name': 'Automation-related commands',
 		'description': 'These commands relate to Unreal\'s automation system. Unless explicitly\nspecified, the platform and project file path arguments will be\nautomatically generated when invoking RunUAT:',
-		'commands': ['uat', 'package']
+		'commands': ['uat']
 	},
 	{
 		'name': 'Commands defined by plugins',

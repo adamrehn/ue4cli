@@ -71,6 +71,7 @@ These commands relate to an individual Unreal project, and will look for a `.upr
 - `ue4 build [CONFIGURATION]` - Build the editor for the Unreal project
 - `ue4 clean` - Clean the Unreal project
 - `ue4 test [--list] [--all] [--filter FILTER] TEST1 TEST2 TESTN` - Run automation tests for the Unreal project
+- `ue4 package [CONFIGURATION] [EXTRA UAT ARGS]` - Package a build of the Unreal project in the current directory using common packaging options, storing the result in a subdirectory named "dist". Default configuration is Shipping.
 
 
 Library-related commands
@@ -92,7 +93,6 @@ Automation-related commands
 These commands relate to Unreal's automation system. Unless explicitly specified, the platform and project file path arguments will be automatically generated when invoking RunUAT:
 
 - `ue4 uat [ARGS]` - Invoke `RunUAT` with the specified arguments
-- `ue4 package [CONFIGURATION] [EXTRA UAT ARGS]` - Package a build of the Unreal project in the current directory using common packaging options, storing the result in a subdirectory named "dist". Default configuration is Shipping.
 
 
 Engine location detection
