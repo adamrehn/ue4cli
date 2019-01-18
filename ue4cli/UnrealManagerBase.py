@@ -113,21 +113,55 @@ class UnrealManagerBase(object):
 		"""
 		pass
 	
-	def getProjectFile(self, dir):
+	def getProjectDescriptor(self, dir):
 		"""
-		Detects the .uproject file for the Unreal project in the specified directory
+		Detects the .uproject descriptor file for the Unreal project in the specified directory
 		"""
-		for project in glob.glob(dir + '/*.uproject'):
+		for project in glob.glob(os.path.join(dir, '*.uproject')):
 			return os.path.realpath(project)
 		
 		# No project detected
 		raise UnrealManagerException('could not detect an Unreal project in the current directory')
 	
-	def getProjectName(self, dir):
+	def getPluginDescriptor(self, dir):
 		"""
-		Determines the name of the Unreal project in the specified directory
+		Detects the .uplugin descriptor file for the Unreal plugin in the specified directory
 		"""
-		return os.path.basename(self.getProjectFile(dir)).replace('.uproject', '')
+		for plugin in glob.glob(os.path.join(dir, '*.uplugin')):
+			return os.path.realpath(plugin)
+		
+		# No plugin detected
+		raise UnrealManagerException('could not detect an Unreal plugin in the current directory')
+	
+	def getDescriptor(self, dir):
+		"""
+		Detects the descriptor file for either an Unreal project or an Unreal plugin in the specified directory
+		"""
+		try:
+			return self.getProjectDescriptor(dir)
+		except:
+			try:
+				return self.getPluginDescriptor(dir)
+			except:
+				raise UnrealManagerException('could not detect an Unreal project or plugin in the current directory')
+	
+	def isProject(self, descriptor):
+		"""
+		Determines if the specified descriptor file is for an Unreal project
+		"""
+		return descriptor.endswith('.uproject')
+	
+	def isPlugin(self, descriptor):
+		"""
+		Determines if the specified descriptor file is for an Unreal plugin
+		"""
+		return descriptor.endswith('.uplugin')
+	
+	def getDescriptorName(self, descriptor):
+		"""
+		Determines the name of the Unreal project or plugin represented by the specified descriptor file
+		"""
+		return os.path.basename(descriptor).replace('.uproject', '').replace('.uplugin', '')
 	
 	def listThirdPartyLibs(self, configuration = 'Development'):
 		"""
@@ -250,53 +284,58 @@ class UnrealManagerBase(object):
 		
 		# Generate the project files
 		genScript = self.getGenerateScript()
-		projectFile = self.getProjectFile(dir)
+		projectFile = self.getProjectDescriptor(dir)
 		Utility.run([genScript, '-project=' + projectFile, '-game', '-engine'] + args, cwd=os.path.dirname(genScript), raiseOnError=True)
 	
-	def cleanProject(self, dir=os.getcwd()):
+	def cleanDescriptor(self, dir=os.getcwd()):
 		"""
-		Cleans the Unreal project in the specified directory
+		Cleans the build artifacts for the Unreal project or plugin in the specified directory
 		"""
 		
-		# Verify that an Unreal project exists in the specified directory
-		project = self.getProjectFile(dir)
+		# Verify that an Unreal project or plugin exists in the specified directory
+		descriptor = self.getDescriptor(dir)
 		
 		# Because performing a clean will also delete the engine build itself when using
 		# a source build, we simply delete the `Binaries` and `Intermediate` directories
 		shutil.rmtree(os.path.join(dir, 'Binaries'), ignore_errors=True)
 		shutil.rmtree(os.path.join(dir, 'Intermediate'), ignore_errors=True)
 		
-		# Clean any plugins
-		projectPlugins = glob.glob(os.path.join(dir, 'Plugins', '*'))
-		for pluginDir in projectPlugins:
-			shutil.rmtree(os.path.join(pluginDir, 'Binaries'), ignore_errors=True)
-			shutil.rmtree(os.path.join(pluginDir, 'Intermediate'), ignore_errors=True)
+		# If we are cleaning a project, also clean any plugins
+		if self.isProject(descriptor):
+			projectPlugins = glob.glob(os.path.join(dir, 'Plugins', '*'))
+			for pluginDir in projectPlugins:
+				self.cleanDescriptor(pluginDir)
 	
-	def buildProject(self, dir=os.getcwd(), configuration='Development', args=[], suppressOutput=False):
+	def buildDescriptor(self, dir=os.getcwd(), configuration='Development', args=[], suppressOutput=False):
 		"""
-		Builds the editor for the Unreal project in the specified directory, using the specified build configuration
+		Builds the editor modules for the Unreal project or plugin in the specified directory, using the specified build configuration
 		"""
 		
-		# If the project is a pure Blueprint project, there is no C++ code to build
+		# Verify that an Unreal project or plugin exists in the specified directory
+		descriptor = self.getDescriptor(dir)
+		descriptorType = 'project' if self.isProject(descriptor) else 'plugin'
+		
+		# If the project or plugin is Blueprint-only, there is no C++ code to build
 		if os.path.exists(os.path.join(dir, 'Source')) == False:
-			Utility.printStderr('Pure Blueprint project, nothing to build.')
+			Utility.printStderr('Pure Blueprint {}, nothing to build.'.format(descriptorType))
 			sys.exit(0)
 		
 		# Verify that the specified build configuration is valid
 		if configuration not in self.validBuildConfigurations():
 			raise UnrealManagerException('invalid build configuration "' + configuration + '"')
 		
+		# Generate the arguments to pass to UBT
+		target = self.getDescriptorName(descriptor) + 'Editor' if self.isProject(descriptor) else 'UE4Editor'
+		baseArgs = ['-{}='.format(descriptorType) + descriptor]
+		
 		# Perform the build
-		projectFile = self.getProjectFile(dir)
-		projectName = self.getProjectName(dir)
-		targetName  = projectName + 'Editor'
-		self._runUnrealBuildTool(targetName, self.getPlatformIdentifier(), configuration, ['-project=' + projectFile] + args, capture=suppressOutput)
+		self._runUnrealBuildTool(target, self.getPlatformIdentifier(), configuration, baseArgs + args, capture=suppressOutput)
 	
 	def runEditor(self, dir=os.getcwd(), debug=False, args=[]):
 		"""
 		Runs the editor for the Unreal project in the specified directory (or without a project if dir is None)
 		"""
-		projectFile = self.getProjectFile(dir) if dir is not None else ''
+		projectFile = self.getProjectDescriptor(dir) if dir is not None else ''
 		extraFlags = ['-debug'] + args if debug == True else args
 		Utility.run([self.getEditorBinary(True), projectFile, '-stdout', '-FullStdOutLogOutput'] + extraFlags, raiseOnError=True)
 	
@@ -304,21 +343,9 @@ class UnrealManagerBase(object):
 		"""
 		Runs the Unreal Automation Tool with the supplied arguments
 		"""
-		
-		# If no `-platform=PLATFORM` argument was specified, use the current platform
-		platformSpecified = len([a for a in args if a.startswith('-platform=')]) > 0
-		if platformSpecified == False:
-			args.append('-platform=' + self.getPlatformIdentifier())
-		
-		# If no `-project=PROJECT` argument was specified, use the project in the current dir
-		projectSpecified = len([a for a in args if a.startswith('-project=')]) > 0
-		if projectSpecified == False:
-			args.append('-project=' + self.getProjectFile(os.getcwd()))
-		
-		# Run UAT
 		Utility.run([self.getRunUATScript()] + args, cwd=self.getEngineRoot(), raiseOnError=True)
 	
-	def packageProject(self, configuration='Shipping', extraArgs=[]):
+	def packageProject(self, dir=os.getcwd(), configuration='Shipping', extraArgs=[]):
 		"""
 		Packages a build of the Unreal project in the specified directory, using common packaging options
 		"""
@@ -327,15 +354,21 @@ class UnrealManagerBase(object):
 		if configuration not in self.validBuildConfigurations():
 			raise UnrealManagerException('invalid build configuration "' + configuration + '"')
 		
-		# Build the Development version of the Editor, needed for cooking content
-		self.buildProject()
+		# Build the Development version of the Editor modules for the project, needed for cooking content
+		self.buildDescriptor(dir, 'Development')
+		
+		# If no `-platform=PLATFORM` argument was specified, use the current platform
+		platformSpecified = len([a for a in extraArgs if a.lower().startswith('-platform=')]) > 0
+		if platformSpecified == False:
+			extraArgs.append('-platform=' + self.getPlatformIdentifier())
 		
 		# Invoke UAT to package the build
-		distDir = os.path.join(os.path.abspath(os.getcwd()), 'dist')
+		distDir = os.path.join(os.path.abspath(dir), 'dist')
 		self.runUAT([
 			'BuildCookRun',
 			'-clientconfig=' + configuration,
 			'-serverconfig=' + configuration,
+			'-project=' + self.getProjectDescriptor(dir),
 			'-noP4',
 			'-cook',
 			'-allmaps',
@@ -346,6 +379,33 @@ class UnrealManagerBase(object):
 			'-archive',
 			'-archivedirectory=' + distDir
 		] + extraArgs)
+	
+	def packagePlugin(self, dir=os.getcwd(), extraArgs=[]):
+		"""
+		Packages a build of the Unreal plugin in the specified directory, suitable for use as a prebuilt Engine module
+		"""
+		
+		# Invoke UAT to package the build
+		distDir = os.path.join(os.path.abspath(dir), 'dist')
+		self.runUAT([
+			'BuildPlugin',
+			'-Plugin=' + self.getPluginDescriptor(dir),
+			'-Package=' + distDir
+		] + extraArgs)
+	
+	def packageDescriptor(self, dir=os.getcwd(), args=[]):
+		"""
+		Packages a build of the Unreal project or plugin in the specified directory
+		"""
+		
+		# Verify that an Unreal project or plugin exists in the specified directory
+		descriptor = self.getDescriptor(dir)
+		
+		# Perform the packaging step
+		if self.isProject(descriptor):
+			self.packageProject(dir, args[0] if len(args) > 0 else 'Shipping', args[1:])
+		else:
+			self.packagePlugin(dir, args)
 	
 	def runAutomationCommands(self, projectFile, commands, capture=False):
 		'''
@@ -408,7 +468,7 @@ class UnrealManagerBase(object):
 		self.buildProject(dir, suppressOutput=True)
 		
 		# Determine which arguments we are passing to the automation test commandlet
-		projectFile = self.getProjectFile(dir)
+		projectFile = self.getProjectDescriptor(dir)
 		if '--list' in args:
 			Utility.printStderr('Retrieving automation test list...')
 			print('\n'.join(self.listAutomationTests(projectFile)))

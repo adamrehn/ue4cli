@@ -66,14 +66,14 @@ SUPPORTED_COMMANDS = {
 	},
 	
 	'build': {
-		'description': 'Build the editor for the Unreal project',
-		'action': lambda m, args: m.buildProject(os.getcwd(), args[0] if len(args) > 0 else 'Development'),
+		'description': 'Build the Editor modules for the Unreal project or plugin',
+		'action': lambda m, args: m.buildDescriptor(os.getcwd(), args[0] if len(args) > 0 else 'Development'),
 		'args': '[CONFIGURATION]'
 	},
 	
 	'clean': {
-		'description': 'Clean the Unreal project',
-		'action': lambda m, args: m.cleanProject(os.getcwd()),
+		'description': 'Clean build artifacts for the Unreal project or plugin',
+		'action': lambda m, args: m.cleanDescriptor(os.getcwd()),
 		'args': None
 	},
 	
@@ -84,9 +84,9 @@ SUPPORTED_COMMANDS = {
 	},
 	
 	'package': {
-		'description': 'Package a build of the Unreal project in the current directory using common packaging options, storing the result in a subdirectory named "dist". Default configuration is Shipping.',
-		'action': lambda m, args: m.packageProject(args[0] if len(args) > 0 else 'Shipping', args[1:]),
-		'args': '[CONFIGURATION] [EXTRA UAT ARGS]'
+		'description': 'Package a build of the Unreal project or plugin in the current directory, storing the result in a subdirectory named "dist". Default configuration for projects is Shipping.',
+		'action': lambda m, args: m.packageDescriptor(os.getcwd(), args),
+		'args': '[PROJECT CONFIGURATION] [EXTRA UAT ARGS]'
 	},
 	
 	'libs': {
@@ -151,8 +151,8 @@ COMMAND_GROUPINGS = [
 		'commands': ['root', 'version', 'editor']
 	},
 	{
-		'name': 'Project-related commands',
-		'description': 'These commands relate to an individual Unreal project, and will look\nfor a .uproject file located in the current working directory:',
+		'name': 'Descriptor-related commands',
+		'description': 'These commands relate to an individual Unreal project or plugin, and will look\nfor a .uproject or .uplugin file located in the current working directory\n(Note that some commands only support projects, not plugins):',
 		'commands': ['run', 'gen', 'build', 'clean', 'test', 'package']
 	},
 	{
