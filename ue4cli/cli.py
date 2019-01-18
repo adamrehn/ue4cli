@@ -162,7 +162,7 @@ COMMAND_GROUPINGS = [
 	},
 	{
 		'name': 'Automation-related commands',
-		'description': 'These commands relate to Unreal\'s automation system. Unless explicitly\nspecified, the platform and project file path arguments will be\nautomatically generated when invoking RunUAT:',
+		'description': 'These commands relate to Unreal\'s automation system:',
 		'commands': ['uat']
 	},
 	{
