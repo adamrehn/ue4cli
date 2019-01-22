@@ -89,6 +89,13 @@ class UnrealManagerBase(object):
 		else:
 			return int(version['Changelist'])
 	
+	def isInstalledBuild(self):
+		"""
+		Determines if the Engine is an Installed Build
+		"""
+		sentinelFile = os.path.join(self.getEngineRoot(), 'Engine', 'Build', 'InstalledBuild.txt')
+		return os.path.exists(sentinelFile)
+	
 	def getEditorBinary(self, cmdVersion=False):
 		"""
 		Determines the location of the UE4Editor binary
