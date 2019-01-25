@@ -287,7 +287,7 @@ class UnrealManagerBase(object):
 		# If the project is a pure Blueprint project, then we cannot generate project files
 		if os.path.exists(os.path.join(dir, 'Source')) == False:
 			Utility.printStderr('Pure Blueprint project, nothing to generate project files for.')
-			sys.exit(0)
+			return
 		
 		# Generate the project files
 		genScript = self.getGenerateScript()
@@ -325,7 +325,7 @@ class UnrealManagerBase(object):
 		# If the project or plugin is Blueprint-only, there is no C++ code to build
 		if os.path.exists(os.path.join(dir, 'Source')) == False:
 			Utility.printStderr('Pure Blueprint {}, nothing to build.'.format(descriptorType))
-			sys.exit(0)
+			return
 		
 		# Verify that the specified build configuration is valid
 		if configuration not in self.validBuildConfigurations():
