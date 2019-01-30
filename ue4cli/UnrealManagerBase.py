@@ -369,6 +369,10 @@ class UnrealManagerBase(object):
 		if platformSpecified == False:
 			extraArgs.append('-platform=' + self.getPlatformIdentifier())
 		
+		# If we are packaging a Shipping build, do not include debug symbols
+		if configuration == 'Shipping':
+			extraArgs.append('-nodebuginfo')
+		
 		# Invoke UAT to package the build
 		distDir = os.path.join(os.path.abspath(dir), 'dist')
 		self.runUAT([
