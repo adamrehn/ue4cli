@@ -363,16 +363,21 @@ class UnrealManagerBase(object):
 		
 		# Strip out the `-NoCompileEditor` flag if the user has specified it, since the Development version
 		# of the Editor modules for the project are needed in order to run the commandlet that cooks content
-		extraArgs = list([arg for arg in extraArgs if arg.lower() != '-nocompileeditor'])
+		#extraArgs = list([arg for arg in extraArgs if arg.lower() != '-nocompileeditor'])
+		extraArgs = Utility.stripArgs(extraArgs, ['-nocompileeditor'])
 		
-		# If no `-platform=PLATFORM` argument was specified, use the current platform
-		platformSpecified = len([a for a in extraArgs if a.lower().startswith('-platform=')]) > 0
-		if platformSpecified == False:
-			extraArgs.append('-platform=' + self.getPlatformIdentifier())
+		# Prevent the user from specifying multiple `-platform=` or `-targetplatform=` arguments,
+		# and use the current host platform if no platform argument was explicitly specified
+		platformArgs = Utility.findArgs(extraArgs, ['-platform=', '-targetplatform='])
+		platform = Utility.getArgValue(platformArgs[0]) if len(platformArgs) > 0 else self.getPlatformIdentifier()
+		extraArgs = Utility.stripArgs(extraArgs, platformArgs) + ['-platform={}'.format(platform)]
 		
 		# If we are packaging a Shipping build, do not include debug symbols
 		if configuration == 'Shipping':
 			extraArgs.append('-nodebuginfo')
+		
+		# Do not create a .pak file when packaging for HTML5
+		pakArg = '-package' if platform.upper() == 'HTML5' else '-pak'
 		
 		# Invoke UAT to package the build
 		distDir = os.path.join(os.path.abspath(dir), 'dist')
@@ -388,7 +393,7 @@ class UnrealManagerBase(object):
 			'-build',
 			'-stage',
 			'-prereqs',
-			'-pak',
+			pakArg,
 			'-archive',
 			'-archivedirectory=' + distDir
 		] + extraArgs)

@@ -83,6 +83,31 @@ class Utility:
 		return ''
 	
 	@staticmethod
+	def findArgs(args, prefixes):
+		"""
+		Extracts the list of arguments that start with any of the specified prefix values
+		"""
+		return list([
+			arg for arg in args
+			if len([p for p in prefixes if arg.lower().startswith(p.lower())]) > 0
+		])
+	
+	@staticmethod
+	def getArgValue(arg):
+		"""
+		Returns the value component of an argument with the format `-KEY=VALUE`
+		"""
+		return arg.split('=', maxsplit=1)[1]
+	
+	@staticmethod
+	def stripArgs(args, blacklist):
+		"""
+		Removes any arguments in the supplied list that are contained in the specified blacklist
+		"""
+		blacklist = [b.lower() for b in blacklist]
+		return list([arg for arg in args if arg.lower() not in blacklist])
+	
+	@staticmethod
 	def capture(command, input=None, cwd=None, shell=False, raiseOnError=False):
 		"""
 		Executes a child process and captures its output
