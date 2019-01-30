@@ -361,8 +361,9 @@ class UnrealManagerBase(object):
 		if configuration not in self.validBuildConfigurations():
 			raise UnrealManagerException('invalid build configuration "' + configuration + '"')
 		
-		# Build the Development version of the Editor modules for the project, needed for cooking content
-		self.buildDescriptor(dir, 'Development')
+		# Strip out the `-NoCompileEditor` flag if the user has specified it, since the Development version
+		# of the Editor modules for the project are needed in order to run the commandlet that cooks content
+		extraArgs = list([arg for arg in extraArgs if arg.lower() != '-nocompileeditor'])
 		
 		# If no `-platform=PLATFORM` argument was specified, use the current platform
 		platformSpecified = len([a for a in extraArgs if a.lower().startswith('-platform=')]) > 0
