@@ -377,6 +377,7 @@ class UnrealManagerBase(object):
 		distDir = os.path.join(os.path.abspath(dir), 'dist')
 		self.runUAT([
 			'BuildCookRun',
+			'-utf8output',
 			'-clientconfig=' + configuration,
 			'-serverconfig=' + configuration,
 			'-project=' + self.getProjectDescriptor(dir),
