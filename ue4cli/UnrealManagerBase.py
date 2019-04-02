@@ -621,5 +621,5 @@ class UnrealManagerBase(object):
 		Uses UE4BuildInterrogator to interrogate UnrealBuildTool about third-party library details
 		"""
 		ubtLambda = lambda target, platform, config, args: self._runUnrealBuildTool(target, platform, config, args, True)
-		interrogator = UE4BuildInterrogator(self.getEngineRoot(), self._getEngineVersionHash(), ubtLambda)
+		interrogator = UE4BuildInterrogator(self.getEngineRoot(), self._getEngineVersionDetails(), self._getEngineVersionHash(), ubtLambda)
 		return interrogator

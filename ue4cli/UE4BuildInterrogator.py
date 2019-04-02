@@ -6,9 +6,10 @@ import json, os, platform, shutil, tempfile
 
 class UE4BuildInterrogator(object):
 	
-	def __init__(self, engineRoot, engineVersionHash, runUBTFunc):
+	def __init__(self, engineRoot, engineVersion, engineVersionHash, runUBTFunc):
 		self.engineRoot = engineRoot
 		self.engineSourceDir = 'Engine/Source/'
+		self.engineVersion = engineVersion
 		self.engineVersionHash = engineVersionHash
 		self.runUBTFunc = runUBTFunc
 	
@@ -144,7 +145,8 @@ class UE4BuildInterrogator(object):
 		# Invoke UnrealBuildTool in JSON export mode (make sure we specify gathering mode, since this is a prerequisite of JSON export)
 		# (Ensure we always perform sentinel file cleanup even when errors occur)
 		try:
-			self.runUBTFunc('UE4Editor', platformIdentifier, configuration, ['-gather', '-jsonexport=' + jsonFile, '-SkipBuild'])
+			args = ['-Mode=JsonExport', '-OutputFile=' +jsonFile ] if self.engineVersion['MinorVersion'] >= 22 else ['-gather', '-jsonexport=' + jsonFile, '-SkipBuild']
+			self.runUBTFunc('UE4Editor', platformIdentifier, configuration, args)
 		finally:
 			if renameSentinel == True:
 				shutil.move(sentinelBackup, sentinelFile)
