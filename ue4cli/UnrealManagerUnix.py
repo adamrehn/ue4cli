@@ -5,13 +5,13 @@ import os
 class UnrealManagerUnix(UnrealManagerBase):
 	
 	def getBuildScript(self):
-		return self.getEngineRoot() + '/Engine/Build/BatchFiles/' + self.getPlatformIdentifier() + '/Build.sh'
+		return os.path.join(self.getEngineRoot(), 'Engine', 'Build', 'BatchFiles', self.getPlatformIdentifier(), 'Build.sh')
 	
 	def getGenerateScript(self):
-		return self.getEngineRoot() + '/Engine/Build/BatchFiles/' + self.getPlatformIdentifier() + '/GenerateProjectFiles.sh'
+		return os.path.join(self.getEngineRoot(), 'Engine', 'Build', 'BatchFiles', self.getPlatformIdentifier(), 'GenerateProjectFiles.sh')
 	
 	def getRunUATScript(self):
-		return self.getEngineRoot() + '/Engine/Build/BatchFiles/RunUAT.sh'
+		return os.path.join(self.getEngineRoot(), 'Engine', 'Build', 'BatchFiles', 'RunUAT.sh')
 	
 	def _runDotNetApplication(self, exeFile, args = []):
 		scriptFile = self._getRunMonoScript()
@@ -30,10 +30,10 @@ class UnrealManagerUnix(UnrealManagerBase):
 		"""
 		Determines the location of the script file to run mono
 		"""
-		return self.getEngineRoot() + '/Engine/Build/BatchFiles/' + self.getPlatformIdentifier() + '/RunMono.sh'
+		return os.path.join(self.getEngineRoot(), 'Engine', 'Build', 'BatchFiles', self.getPlatformIdentifier(), 'RunMono.sh')
 	
 	def _getRunXBuildScript(self):
 		"""
 		Determines the location of the script file to run mono's XBuild tool
 		"""
-		return self.getEngineRoot() + '/Engine/Build/BatchFiles/' + self.getPlatformIdentifier() + '/RunXBuild.sh'
+		return os.path.join(self.getEngineRoot(), 'Engine', 'Build', 'BatchFiles', self.getPlatformIdentifier(), 'RunXBuild.sh')

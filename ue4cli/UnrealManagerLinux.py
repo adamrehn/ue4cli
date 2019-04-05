@@ -33,7 +33,7 @@ class UnrealManagerLinux(UnrealManagerUnix):
 			return os.path.abspath(editorLoc + '/../../..')
 		
 		# Under Debian-based systems, we can use the desktop integration to find UE4Editor
-		launcherPath = os.environ['HOME'] + '/.local/share/applications/UE4Editor.desktop'
+		launcherPath = os.path.join(os.environ['HOME'], '.local', 'share', 'applications', 'UE4Editor.desktop')
 		if os.path.exists(launcherPath):
 			with open(launcherPath, 'r') as f:
 				launcherData = f.read()

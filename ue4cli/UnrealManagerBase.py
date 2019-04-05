@@ -36,7 +36,7 @@ class UnrealManagerBase(object):
 		"""
 				
 		# Set the new root directory
-		ConfigurationManager.setConfigKey('rootDirOverride', rootDir)
+		ConfigurationManager.setConfigKey('rootDirOverride', os.path.abspath(rootDir))
 		
 		# Check that the specified directory is valid and warn the user if it is not
 		try:
@@ -100,7 +100,7 @@ class UnrealManagerBase(object):
 		"""
 		Determines the location of the UE4Editor binary
 		"""
-		return self.getEngineRoot() + '/Engine/Binaries/' + self.getPlatformIdentifier() + '/UE4Editor' + self._editorPathSuffix(cmdVersion)
+		return os.path.join(self.getEngineRoot(), 'Engine', 'Binaries', self.getPlatformIdentifier(), 'UE4Editor' + self._editorPathSuffix(cmdVersion))
 	
 	def getBuildScript(self):
 		"""
@@ -363,7 +363,6 @@ class UnrealManagerBase(object):
 		
 		# Strip out the `-NoCompileEditor` flag if the user has specified it, since the Development version
 		# of the Editor modules for the project are needed in order to run the commandlet that cooks content
-		#extraArgs = list([arg for arg in extraArgs if arg.lower() != '-nocompileeditor'])
 		extraArgs = Utility.stripArgs(extraArgs, ['-nocompileeditor'])
 		
 		# Prevent the user from specifying multiple `-platform=` or `-targetplatform=` arguments,
@@ -557,7 +556,7 @@ class UnrealManagerBase(object):
 		"""
 		Parses the JSON version details for the latest installed version of UE4
 		"""
-		versionFile = self.getEngineRoot() + '/Engine/Build/Build.version'
+		versionFile = os.path.join(self.getEngineRoot(), 'Engine', 'Build', 'Build.version')
 		return json.loads(Utility.readFile(versionFile))
 	
 	def _getEngineVersionHash(self):
