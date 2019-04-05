@@ -150,7 +150,7 @@ class UnrealManagerBase(object):
 			try:
 				return self.getPluginDescriptor(dir)
 			except:
-				raise UnrealManagerException('could not detect an Unreal project or plugin in the current directory')
+				raise UnrealManagerException('could not detect an Unreal project or plugin in the directory "{}"'.format(dir))
 	
 	def isProject(self, descriptor):
 		"""
