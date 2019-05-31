@@ -35,8 +35,8 @@ class UnrealManagerDarwin(UnrealManagerUnix):
 		return '.app/Contents/MacOS/UE4Editor'
 	
 	def _transformBuildToolPlatform(self, platform):
-		# Build.sh under Mac requires "macosx" as the platform name for macOS
-		return 'macosx' if platform == 'Mac' else platform
+		# Before 4.22.2, Build.sh under Mac requires "macosx" as the platform name for macOS
+		return 'macosx' if platform == 'Mac' and self.getEngineVersion() >= "4.22.2" else platform
 	
 	def _getRunXBuildScript(self):
 		xbuildScript = super(UnrealManagerDarwin, self)._getRunXBuildScript()
