@@ -2,6 +2,7 @@ from .ThirdPartyLibraryDetails import ThirdPartyLibraryDetails
 from .UnrealManagerException import UnrealManagerException
 from .UnrealManagerUnix import UnrealManagerUnix
 from .Utility import Utility
+from pkg_resources import parse_version
 import glob, os
 
 class UnrealManagerDarwin(UnrealManagerUnix):
@@ -35,8 +36,9 @@ class UnrealManagerDarwin(UnrealManagerUnix):
 		return '.app/Contents/MacOS/UE4Editor'
 	
 	def _transformBuildToolPlatform(self, platform):
-		# Build.sh under Mac requires "macosx" as the platform name for macOS
-		return 'macosx' if platform == 'Mac' else platform
+		# Prior to 4.22.2, Build.sh under Mac requires "macosx" as the platform name for macOS
+		version = parse_version(self.getEngineVersion())
+		return 'macosx' if platform == 'Mac' and version < parse_version('4.22.2') else platform
 	
 	def _getRunXBuildScript(self):
 		xbuildScript = super(UnrealManagerDarwin, self)._getRunXBuildScript()
