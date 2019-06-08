@@ -313,7 +313,7 @@ class UnrealManagerBase(object):
 			for pluginDir in projectPlugins:
 				self.cleanDescriptor(pluginDir)
 	
-	def buildDescriptor(self, dir=os.getcwd(), configuration='Development', args=[], suppressOutput=False):
+	def buildDescriptor(self, dir=os.getcwd(), configuration='Development', target='Editor', args=[], suppressOutput=False):
 		"""
 		Builds the editor modules for the Unreal project or plugin in the specified directory, using the specified build configuration
 		"""
@@ -332,7 +332,7 @@ class UnrealManagerBase(object):
 			raise UnrealManagerException('invalid build configuration "' + configuration + '"')
 		
 		# Generate the arguments to pass to UBT
-		target = self.getDescriptorName(descriptor) + 'Editor' if self.isProject(descriptor) else 'UE4Editor'
+		target = self.getDescriptorName(descriptor) + target if self.isProject(descriptor) else 'UE4Editor'
 		baseArgs = ['-{}='.format(descriptorType) + descriptor]
 		
 		# Perform the build

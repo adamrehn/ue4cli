@@ -67,8 +67,8 @@ SUPPORTED_COMMANDS = {
 	
 	'build': {
 		'description': 'Build the Editor modules for the Unreal project or plugin',
-		'action': lambda m, args: m.buildDescriptor(os.getcwd(), args[0] if len(args) > 0 else 'Development'),
-		'args': '[CONFIGURATION]'
+		'action': lambda m, args: m.buildDescriptor(os.getcwd(), args.pop(0) if len(args) > 0 else 'Development', args.pop(0) if len(args) > 0 else '', args),
+		'args': '[CONFIGURATION] [TARGET]'
 	},
 	
 	'clean': {
