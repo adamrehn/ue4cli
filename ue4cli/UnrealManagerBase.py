@@ -371,12 +371,23 @@ class UnrealManagerBase(object):
 		platform = Utility.getArgValue(platformArgs[0]) if len(platformArgs) > 0 else self.getPlatformIdentifier()
 		extraArgs = Utility.stripArgs(extraArgs, platformArgs) + ['-platform={}'.format(platform)]
 		
+		# If we are building a dedicated server then ensure the server platform is set correctly
+		serverArg = Utility.findArgs(extraArgs, ['-server'])
+		serverPlatformArg = Utility.findArgs(extraArgs, ['-serverplatform='])
+		if len(serverArg) > 0 and len(serverPlatformArg) == 0:
+			extraArgs.append('-serverplatform={}'.format(platform))
+		
 		# If we are packaging a Shipping build, do not include debug symbols
 		if configuration == 'Shipping':
 			extraArgs.append('-nodebuginfo')
 		
 		# Do not create a .pak file when packaging for HTML5
 		pakArg = '-package' if platform.upper() == 'HTML5' else '-pak'
+		
+		# Include the `-allmaps` flag if we are building a client target
+		noClientArg = Utility.findArgs(extraArgs, ['-noclient'])
+		if len(noClientArg) == 0:
+			extraArgs.append('-allmaps')
 		
 		# Invoke UAT to package the build
 		distDir = os.path.join(os.path.abspath(dir), 'dist')
@@ -388,7 +399,6 @@ class UnrealManagerBase(object):
 			'-project=' + self.getProjectDescriptor(dir),
 			'-noP4',
 			'-cook',
-			'-allmaps',
 			'-build',
 			'-stage',
 			'-prereqs',
