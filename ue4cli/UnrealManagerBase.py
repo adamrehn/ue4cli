@@ -492,7 +492,7 @@ class UnrealManagerBase(object):
 		
 		# Build the project if it isn't already built
 		Utility.printStderr('Ensuring project is built...')
-		self.buildProject(dir, suppressOutput=True)
+		self.buildDescriptor(dir, suppressOutput=True)
 		
 		# Determine which arguments we are passing to the automation test commandlet
 		projectFile = self.getProjectDescriptor(dir)
