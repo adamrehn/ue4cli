@@ -160,7 +160,7 @@ class UE4BuildInterrogator(object):
 		modules = [result['Modules'][key] for key in result['Modules']]
 		
 		# Filter out any modules from outside the Engine/Source/ThirdParty directory
-		thirdPartyRoot = os.path.join(self.engineRoot, 'Engine', 'Source', 'ThirdParty')
+		thirdPartyRoot = os.path.join('Engine', 'Source', 'ThirdParty')
 		thirdparty = list([m for m in modules if thirdPartyRoot in m['Directory']])
 		
 		# Remove the temp directory
