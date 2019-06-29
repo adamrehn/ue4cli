@@ -7,7 +7,7 @@ import json, os, platform, shutil, tempfile
 class UE4BuildInterrogator(object):
 	
 	def __init__(self, engineRoot, engineVersion, engineVersionHash, runUBTFunc):
-		self.engineRoot = engineRoot
+		self.engineRoot = os.path.realpath(engineRoot)
 		self.engineSourceDir = 'Engine/Source/'
 		self.engineVersion = engineVersion
 		self.engineVersionHash = engineVersionHash
