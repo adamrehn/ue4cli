@@ -434,7 +434,7 @@ class UnrealManagerBase(object):
 		else:
 			self.packagePlugin(dir, args)
 	
-	def runAutomationCommands(self, projectFile, commands, capture=False):
+	def runAutomationCommands(self, projectFile, commands, extraArgs, capture=False):
 		'''
 		Invokes the Automation Test commandlet for the specified project with the supplied automation test commands
 		'''
@@ -451,7 +451,8 @@ class UnrealManagerBase(object):
 		
 		command = '{} {}'.format(Utility.escapePathForShell(self.getEditorBinary(True)), Utility.escapePathForShell(projectFile))
 		command += ' -game -buildmachine -stdout -fullstdoutlogoutput -forcelogflush -unattended -nopause -nullrhi -nosplash'
-		command += ' -ExecCmds="automation {};quit"'.format(';'.join(commands))
+		command += ' -ExecCmds="automation {};quit" '.format(';'.join(commands))
+		command += ' '.join([Utility.escapePathForShell(a) for a in extraArgs])
 		
 		if capture == True:
 			return Utility.capture(command, shell=True)
@@ -490,6 +491,13 @@ class UnrealManagerBase(object):
 		if len(args) == 0:
 			raise RuntimeError('at least one test name must be specified')
 		
+		# Gather any additional arguments to pass directly to the Editor
+		extraArgs = []
+		if '--' in args:
+			delimIndex = args.index('--')
+			extraArgs = args[delimIndex+1:]
+			args = args[:delimIndex]
+		
 		# Build the project if it isn't already built
 		Utility.printStderr('Ensuring project is built...')
 		self.buildDescriptor(dir, suppressOutput=True)
@@ -521,7 +529,7 @@ class UnrealManagerBase(object):
 			
 			# Attempt to run the automation tests
 			Utility.printStderr('Running automation tests...')
-			logOutput = self.runAutomationCommands(projectFile, command, capture=True)
+			logOutput = self.runAutomationCommands(projectFile, command, extraArgs, capture=True)
 			
 			# Propagate the log output
 			print(logOutput.stdout)
