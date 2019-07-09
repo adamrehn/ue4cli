@@ -384,9 +384,10 @@ class UnrealManagerBase(object):
 		# Do not create a .pak file when packaging for HTML5
 		pakArg = '-package' if platform.upper() == 'HTML5' else '-pak'
 		
-		# Include the `-allmaps` flag if we are building a client target
-		noClientArg = Utility.findArgs(extraArgs, ['-noclient'])
-		if len(noClientArg) == 0:
+		# Include the `-allmaps` flag if we are building a client target and haven't specified a list of maps
+		buildingClient = (len(Utility.findArgs(extraArgs, ['-noclient'])) == 0)
+		specifiedMaps = (len(Utility.findArgs(extraArgs, ['-MapsToCook', '-MapIniSectionsToCook'])) > 0)
+		if buildingClient == True and specifiedMaps == False:
 			extraArgs.append('-allmaps')
 		
 		# Invoke UAT to package the build
