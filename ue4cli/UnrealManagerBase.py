@@ -468,7 +468,7 @@ class UnrealManagerBase(object):
 		# Attempt to retrieve the list of automation tests
 		tests = set()
 		testRegex = re.compile('.*LogAutomationCommandLine: Display: \t(.+)')
-		logOutput = self.runAutomationCommands(projectFile, ['List'], capture=True)
+		logOutput = self.runAutomationCommands(projectFile, ['List'], [], capture=True)
 		for line in logOutput.stdout.split('\n'):
 			matches = testRegex.search(line)
 			if matches != None:
