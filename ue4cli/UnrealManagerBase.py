@@ -309,9 +309,9 @@ class UnrealManagerBase(object):
 		
 		# If we are cleaning a project, also clean any plugins
 		if self.isProject(descriptor):
-			projectPlugins = glob.glob(os.path.join(dir, 'Plugins', '*'))
-			for pluginDir in projectPlugins:
-				self.cleanDescriptor(pluginDir)
+			projectPlugins = glob.glob(os.path.join(dir, 'Plugins', '**', '*.uplugin'), recursive=True)
+			for plugin in projectPlugins:
+				self.cleanDescriptor(os.path.dirname(plugin))
 	
 	def buildDescriptor(self, dir=os.getcwd(), configuration='Development', target='Editor', args=[], suppressOutput=False):
 		"""
