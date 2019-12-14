@@ -44,6 +44,13 @@ class UE4BuildInterrogator(object):
 			if len(unsupported) > 0:
 				Utility.printStderr('Warning: unsupported libraries ' + ','.join(unsupported))
 			
+			# In Unreal Engine 4.24.0 the `PublicLibraryPaths` key was removed and the `PublicSystemLibraryPaths` key was added to provide
+			# backwards-compatibility with the legacy search path behaviour (with a warning emitted when a qualified path is not specified)
+			# (See <https://docs.unrealengine.com/en-US/Support/Builds/ReleaseNotes/4_24/index.html#unrealbuildtool> for details)
+			for module in modules:
+				if 'PublicSystemLibraryPaths' in module and 'PublicLibraryPaths' not in module:
+					module['PublicLibraryPaths'] = module['PublicSystemLibraryPaths']
+			
 			# Some libraries are listed as just the filename without the leading directory (especially prevalent under Windows)
 			for module in modules:
 				if len(module['PublicAdditionalLibraries']) > 0 and len(module['PublicLibraryPaths']) > 0:
