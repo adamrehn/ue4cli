@@ -1,4 +1,4 @@
-import platform, shellescape, subprocess, sys
+import os, platform, shellescape, subprocess, sys
 
 class CommandOutput(object):
 	"""
@@ -113,6 +113,9 @@ class Utility:
 		Executes a child process and captures its output
 		"""
 		
+		# If verbose output is enabled, print the command that will be executed
+		Utility._printCommand(command)
+		
 		# Attempt to execute the child process
 		proc = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd, shell=shell, universal_newlines=True)
 		(stdout, stderr) = proc.communicate(input)
@@ -133,7 +136,19 @@ class Utility:
 		"""
 		Executes a child process and waits for it to complete
 		"""
+		
+		# If verbose output is enabled, print the command that will be executed
+		Utility._printCommand(command)
+		
 		returncode = subprocess.call(command, cwd=cwd, shell=shell)
 		if raiseOnError == True and returncode != 0:
 			raise Exception('child process ' + str(command) + ' failed with exit code ' + str(returncode))
 		return returncode
+	
+	@staticmethod
+	def _printCommand(command):
+		"""
+		Prints a command if verbose output is enabled
+		"""
+		if os.environ.get('UE4CLI_VERBOSE', '0') == '1':
+			Utility.printStderr('[UE4CLI] EXECUTE COMMAND:', command)
