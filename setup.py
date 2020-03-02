@@ -7,7 +7,7 @@ with open(abspath(join(dirname(__file__), 'README.md')), 'rb') as readmeFile:
 
 setup(
 	name='ue4cli',
-	version='0.0.40',
+	version='0.0.41',
 	description='Command-line interface for Unreal Engine 4',
 	long_description=__readme__,
 	long_description_content_type='text/markdown',
