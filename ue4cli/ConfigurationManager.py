@@ -11,6 +11,12 @@ class ConfigurationManager(object):
 		"""
 		Determines the platform-specific config directory location for ue4cli
 		"""
+		
+		# If an explicit override was specified for the config directory location then use that
+		if 'UE4CLI_CONFIG_DIR' in os.environ:
+			return os.environ['UE4CLI_CONFIG_DIR']
+		
+		# Use the appropriate configuration directory for the host platform
 		if platform.system() == 'Windows':
 			return os.path.join(os.environ['APPDATA'], 'ue4cli')
 		else:
