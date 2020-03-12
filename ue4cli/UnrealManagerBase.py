@@ -331,6 +331,16 @@ class UnrealManagerBase(object):
 		if configuration not in self.validBuildConfigurations():
 			raise UnrealManagerException('invalid build configuration "' + configuration + '"')
 		
+		# Check if the user specified the `-notools` flag to opt out of building Engine tools when working with source builds
+		unstripped = list(args)
+		args = Utility.stripArgs(args, ['-notools'])
+		noTools = len(unstripped) > len(args)
+		
+		# If we're using a source build of the Engine then make sure ShaderCompileWorker is built before building project Editor modules
+		if noTools == False and self.isInstalledBuild() == False and self.isProject(descriptor) and target == 'Editor':
+			Utility.printStderr('Ensuring ShaderCompileWorker is built before building project Editor modules...')
+			self._runUnrealBuildTool('ShaderCompileWorker', self.getPlatformIdentifier(), 'Development', [], capture=suppressOutput)
+		
 		# Generate the arguments to pass to UBT
 		target = self.getDescriptorName(descriptor) + target if self.isProject(descriptor) else 'UE4Editor'
 		baseArgs = ['-{}='.format(descriptorType) + descriptor]
