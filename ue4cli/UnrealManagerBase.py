@@ -550,7 +550,8 @@ class UnrealManagerBase(object):
 			if 'PlatformMisc::RequestExit(' not in logOutput.stdout:
 				sys.exit(1)
 			
-			# If automation testing failed (or we failed to find any tests to run), propagate the failure
+			# Since UE4 doesn't consistently produce accurate exit codes across all platforms, we need to rely on
+			# text-based heuristics to detect failed automation tests or errors related to not finding any tests to run
 			errorStrings = [
 				'Incorrect automation command syntax!',
 				'Automation Test Failed',
@@ -562,13 +563,10 @@ class UnrealManagerBase(object):
 				if errorStr in logOutput.stdout:
 					sys.exit(1)
 			
-			# From 4.20 onwards, automation tests typically yield a meaningful exit code, so we can propagate it directly
-			if self._getEngineVersionDetails()['MinorVersion'] > 19:
-				sys.exit(logOutput.returncode)
-			else:
-				# Under 4.19 we rely purely on our string matching heuristics to detect failures
-				sys.exit(0)
-	
+			# If an explicit exit code was specified in the output text then identify it and propagate it
+			match = re.search('TEST COMPLETE\\. EXIT CODE: ([0-9]+)', logOutput.stdout + logOutput.stderr)
+			if match is not None:
+				sys.exit(int(match.group(1)))
 	
 	# "Protected" methods
 	
