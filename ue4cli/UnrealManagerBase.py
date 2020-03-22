@@ -445,7 +445,7 @@ class UnrealManagerBase(object):
 		else:
 			self.packagePlugin(dir, args)
 	
-	def runAutomationCommands(self, projectFile, commands, extraArgs, capture=False):
+	def runAutomationCommands(self, projectFile, commands, extraArgs, capture=False, enableRHI=False):
 		'''
 		Invokes the Automation Test commandlet for the specified project with the supplied automation test commands
 		'''
@@ -461,7 +461,9 @@ class UnrealManagerBase(object):
 		# preventing them from executing correctly.
 		
 		command = '{} {}'.format(Utility.escapePathForShell(self.getEditorBinary(True)), Utility.escapePathForShell(projectFile))
-		command += ' -game -buildmachine -stdout -fullstdoutlogoutput -forcelogflush -unattended -nopause -nullrhi -nosplash'
+		command += ' -game -buildmachine -stdout -fullstdoutlogoutput -forcelogflush -unattended -nopause -nosplash'
+		if enableRHI == False:
+			command += ' -nullrhi'
 		command += ' -ExecCmds="automation {};quit" '.format(';'.join(commands))
 		command += ' '.join([Utility.escapePathForShell(a) for a in extraArgs])
 		
@@ -497,6 +499,10 @@ class UnrealManagerBase(object):
 		'''
 		Performs automation tests for the Unreal project in the specified directory
 		'''
+		
+		# Determine if rendering should be enabled
+		enableRHI = len(Utility.findArgs(args, ['--withrhi'])) > 0
+		args = Utility.stripArgs(args, ['--withrhi'])
 		
 		# Verify that at least one argument was supplied
 		if len(args) == 0:
@@ -540,7 +546,7 @@ class UnrealManagerBase(object):
 			
 			# Attempt to run the automation tests
 			Utility.printStderr('Running automation tests...')
-			logOutput = self.runAutomationCommands(projectFile, command, extraArgs, capture=True)
+			logOutput = self.runAutomationCommands(projectFile, command, extraArgs, capture=True, enableRHI=enableRHI)
 			
 			# Propagate the log output
 			print(logOutput.stdout)

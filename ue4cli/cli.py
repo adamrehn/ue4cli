@@ -80,7 +80,7 @@ SUPPORTED_COMMANDS = {
 	'test': {
 		'description': 'Run automation tests for the Unreal project',
 		'action': lambda m, args: m.automationTests(os.getcwd(), args),
-		'args': '[--list] [--all] [--filter FILTER] TEST1 TEST2 TESTN [-- EXTRA ARGS]'
+		'args': '[--withrhi] [--list] [--all] [--filter FILTER] TEST1 TEST2 TESTN [-- EXTRA ARGS]'
 	},
 	
 	'package': {
