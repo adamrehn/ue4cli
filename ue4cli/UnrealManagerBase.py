@@ -383,7 +383,7 @@ class UnrealManagerBase(object):
 		
 		# If we are building a dedicated server then ensure the server platform is set correctly
 		serverArg = Utility.findArgs(extraArgs, ['-server'])
-		serverPlatformArg = Utility.findArgs(extraArgs, ['-serverplatform='])
+		serverPlatformArg = Utility.findArgs(extraArgs, ['-serverplatform=', '-servertargetplatform='])
 		if len(serverArg) > 0 and len(serverPlatformArg) == 0:
 			extraArgs.append('-serverplatform={}'.format(platform))
 		
