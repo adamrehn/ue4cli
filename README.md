@@ -9,11 +9,11 @@ The ue4cli Python package implements a command-line tool called `ue4` that provi
 
 This package requires **Unreal Engine 4.19 or newer** (since 4.19 is the first release to include the necessary patches to UnrealBuildTool.) The package also requires Python 3.5 or newer.
 
-**Check out the [comprehensive documentation](https://adamrehn.com/docs/ue4cli/) to view installation instructions and the full command reference.**
+**Check out the [comprehensive documentation](https://docs.adamrehn.com/ue4cli/) to view installation instructions and the full command reference.**
 
 Resources:
 
-- **Documentation:** <https://adamrehn.com/docs/ue4cli/>
+- **Documentation:** <https://docs.adamrehn.com/ue4cli/>
 - **GitHub repository:** <https://github.com/adamrehn/ue4cli>
 - **Package on PyPI:** <https://pypi.org/project/ue4cli/>
 - **Related articles:** <https://adamrehn.com/articles/tag/Unreal%20Engine/>
