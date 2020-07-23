@@ -59,6 +59,11 @@ class UE4BuildInterrogator(object):
 					libs = list([os.path.join(libPath, lib) if '/' not in lib else lib for lib in libs])
 					module['PublicAdditionalLibraries'] = libs
 			
+			# Merge any system libraries into the list of libraries for the module
+			# TODO: in future we should differentiate properly between module libraries and system libraries
+			if 'PublicSystemLibraries' in module:
+				module['PublicAdditionalLibraries'].extend(module['PublicSystemLibraries'])
+			
 			# Flatten the lists of paths
 			fields = [
 				'Directory',
