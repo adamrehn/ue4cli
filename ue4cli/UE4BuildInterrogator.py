@@ -59,14 +59,14 @@ class UE4BuildInterrogator(object):
 					libs = list([os.path.join(libPath, lib) if '/' not in lib else lib for lib in libs])
 					module['PublicAdditionalLibraries'] = libs
 			
-			# Merge any system libraries into the list of libraries for the module
-			# TODO: in future we should differentiate properly between module libraries and system libraries
-			if 'PublicSystemLibraries' in module:
-				module['PublicAdditionalLibraries'].extend(module['PublicSystemLibraries'])
+			# Older versions of the Unreal Engine don't list system libraries separately, so make sure we always have a list even if it's empty
+			if 'PublicSystemLibraries' not in module:
+				module['PublicSystemLibraries'] = []
 			
 			# Flatten the lists of paths
 			fields = [
 				'Directory',
+				'PublicSystemLibraries',
 				'PublicAdditionalLibraries',
 				'PublicLibraryPaths',
 				'PublicSystemIncludePaths',
@@ -76,7 +76,7 @@ class UE4BuildInterrogator(object):
 			]
 			flattened = {}
 			for field in fields:
-				transform = (lambda l: self._absolutePaths(l)) if field != 'Definitions' else None
+				transform = (lambda l: self._absolutePaths(l)) if field not in ['Definitions', 'PublicSystemLibraries'] else None
 				flattened[field] = self._flatten(field, modules, transform)
 			
 			# Compose the prefix directories from the module root directories, the header and library paths, and their direct parent directories
@@ -91,7 +91,8 @@ class UE4BuildInterrogator(object):
 				includeDirs = headerDirectories,
 				linkDirs    = libraryDirectories,
 				definitions = flattened['PublicDefinitions'],
-				libs        = flattened['PublicAdditionalLibraries']
+				libs        = flattened['PublicAdditionalLibraries'],
+				systemLibs  = flattened['PublicSystemLibraries']
 			)
 		
 		# Apply any overrides
@@ -126,7 +127,7 @@ class UE4BuildInterrogator(object):
 			flattened.extend([value] if isinstance(value, str) else value)
 		
 		# Apply any supplied transformation function
-		return transform(flattened) if transform != None else flattened
+		return transform(flattened) if transform is not None else flattened
 	
 	def _getThirdPartyLibs(self, platformIdentifier, configuration):
 		"""

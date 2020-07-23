@@ -30,11 +30,12 @@ class ThirdPartyLibraryDetails(object):
 	Represents the details of the Unreal-specific versions of one of more third-party libraries
 	"""
 	
-	def __init__(self, prefixDirs=[], includeDirs=[], linkDirs=[], libs=[], definitions=[], cxxFlags=[], ldFlags=[], cmakeFlags=[]):
+	def __init__(self, prefixDirs=[], includeDirs=[], linkDirs=[], libs=[], systemLibs=[], definitions=[], cxxFlags=[], ldFlags=[], cmakeFlags=[]):
 		self.prefixDirs = Utility.forwardSlashes(prefixDirs)
 		self.includeDirs = Utility.forwardSlashes(includeDirs)
 		self.linkDirs = Utility.forwardSlashes(linkDirs)
 		self.libs = Utility.forwardSlashes(libs)
+		self.systemLibs = systemLibs
 		self.definitions = definitions
 		self.cxxFlags = cxxFlags
 		self.ldFlags = ldFlags
@@ -45,6 +46,7 @@ class ThirdPartyLibraryDetails(object):
 		self.definitionPrefix = '/D'        if isWindows else '-D'
 		self.includeDirPrefix = '/I'        if isWindows else '-I'
 		self.linkerDirPrefix  = '/LIBPATH:' if isWindows else '-L'
+		self.systemLibPrefix  = ''          if isWindows else '-l'
 	
 	def __repr__(self):
 		return repr({
@@ -52,6 +54,7 @@ class ThirdPartyLibraryDetails(object):
 			'includeDirs': self.includeDirs,
 			'linkDirs': self.linkDirs,
 			'libs': self.libs,
+			'systemLibs': self.systemLibs,
 			'definitions': self.definitions,
 			'cxxFlags': self.cxxFlags,
 			'ldFlags': self.ldFlags,
@@ -63,6 +66,7 @@ class ThirdPartyLibraryDetails(object):
 		self.includeDirs = self.includeDirs + other.includeDirs
 		self.linkDirs    = self.linkDirs + other.linkDirs
 		self.libs        = self.libs + other.libs
+		self.systemLibs  = self.systemLibs + other.systemLibs
 		self.definitions = self.definitions + other.definitions
 		self.cxxFlags    = self.cxxFlags + other.cxxFlags
 		self.ldFlags     = self.ldFlags + other.ldFlags
@@ -88,6 +92,7 @@ class ThirdPartyLibraryDetails(object):
 		if includeLibs == True:
 			components.extend(self.prefixedStrings(self.linkerDirPrefix, self.linkDirs, engineRoot))
 			components.extend(self.resolveRoot(self.libs, engineRoot))
+			components.extend(self.prefixedStrings(self.systemLibPrefix, self.systemLibs, engineRoot))
 		
 		return Utility.join(fmt.delim, components, fmt.quotes)
 	
@@ -114,6 +119,12 @@ class ThirdPartyLibraryDetails(object):
 		Returns the list of library files for this library, joined using the specified delimiter
 		"""
 		return delimiter.join(self.resolveRoot(self.libs, engineRoot))
+	
+	def getSystemLibraryFiles(self, engineRoot, delimiter=' '):
+		"""
+		Returns the list of system library files for this library, joined using the specified delimiter
+		"""
+		return delimiter.join(self.systemLibs)
 	
 	def getPreprocessorDefinitions(self, engineRoot, delimiter=' '):
 		"""
