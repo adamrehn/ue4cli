@@ -508,7 +508,7 @@ class UnrealManagerBase(object):
 		
 		# Determine if tests should be run as a game 
 		disableGameArg = len(Utility.findArgs(args, ['--notgame'])) > 0
-		args = Utility.stripArgs(args, ['--withrhi'])
+		args = Utility.stripArgs(args, ['--notgame'])
 		
 		# Verify that at least one argument was supplied
 		if len(args) == 0:
