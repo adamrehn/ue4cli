@@ -462,7 +462,7 @@ class UnrealManagerBase(object):
 		
 		command = '{} {}'.format(Utility.escapePathForShell(self.getEditorBinary(True)), Utility.escapePathForShell(projectFile))
 		if disableGameArg == False:
-		  command += ' -game'
+			command += ' -game'
 		command += ' -buildmachine -stdout -fullstdoutlogoutput -forcelogflush -unattended -nopause -nosplash'
 		if enableRHI == False:
 			command += ' -nullrhi'
