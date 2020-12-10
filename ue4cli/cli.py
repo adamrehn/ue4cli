@@ -49,6 +49,12 @@ SUPPORTED_COMMANDS = {
 		'args': '[EXTRA ARGS]'
 	},
 	
+	'build-target': {
+		'description': 'Build the specified target using UBT',
+		'action': lambda m, args: m.buildTarget(args.pop(0), args.pop(0) if (len(args) > 0) else 'Development', args),
+		'args': '<TARGET> [CONFIGURATION]'
+	},
+	
 	'run': {
 		'description': 'Run the editor for the Unreal project',
 		'action': lambda m, args: m.runEditor(
@@ -148,7 +154,7 @@ COMMAND_GROUPINGS = [
 	{
 		'name': 'Engine-related commands',
 		'description': 'These commands relate to the Unreal Engine itself:',
-		'commands': ['root', 'version', 'editor']
+		'commands': ['root', 'version', 'editor', 'build-target']
 	},
 	{
 		'name': 'Descriptor-related commands',
