@@ -44,24 +44,31 @@ class UE4BuildInterrogator(object):
 			if len(unsupported) > 0:
 				Utility.printStderr('Warning: unsupported libraries ' + ','.join(unsupported))
 			
-			# In Unreal Engine 4.24.0 the `PublicLibraryPaths` key was removed and the `PublicSystemLibraryPaths` key was added to provide
-			# backwards-compatibility with the legacy search path behaviour (with a warning emitted when a qualified path is not specified)
-			# (See <https://docs.unrealengine.com/en-US/Support/Builds/ReleaseNotes/4_24/index.html#unrealbuildtool> for details)
+			# Iterate over the modules and perform any necessary transformations
 			for module in modules:
+				
+				# In Unreal Engine 4.24.0 the `PublicLibraryPaths` key was removed and the `PublicSystemLibraryPaths` key was added to provide
+				# backwards-compatibility with the legacy search path behaviour (with a warning emitted when a qualified path is not specified)
+				# (See <https://docs.unrealengine.com/en-US/Support/Builds/ReleaseNotes/4_24/index.html#unrealbuildtool> for details)
 				if 'PublicSystemLibraryPaths' in module and 'PublicLibraryPaths' not in module:
 					module['PublicLibraryPaths'] = module['PublicSystemLibraryPaths']
-			
-			# Some libraries are listed as just the filename without the leading directory (especially prevalent under Windows)
-			for module in modules:
-				if len(module['PublicAdditionalLibraries']) > 0 and len(module['PublicLibraryPaths']) > 0:
+				
+				# In Unreal Engine 4.26.0, the `PublicAdditionalLibraries` key was removed from JSON output and entries are now split into `PublicLibraries` and `PublicSystemLibraries`
+				# based on whether or not they are fully-qualified paths. The `PublicSystemLibraryPaths` key is used for resolving entries in `PublicSystemLibraries` as before.
+				# (See this change for the implementation details: <https://github.com/EpicGames/UnrealEngine/commit/d6d7c939e5b424bf128769bd2f027f35430c0db4>)
+				if 'PublicAdditionalLibraries' not in module and 'PublicLibraries' in module:
+					module['PublicAdditionalLibraries'] = module['PublicLibraries']
+				
+				# Prior to the strict qualified/system split in Unreal Engine 4.26.0, some libraries were listed as just the filename without the leading directory (especially prevalent under Windows)
+				if 'PublicLibraries' not in module and len(module['PublicAdditionalLibraries']) > 0 and len(module['PublicLibraryPaths']) > 0:
 					libPath = (self._absolutePaths(module['PublicLibraryPaths']))[0]
 					libs = list([lib.replace('\\', '/') for lib in module['PublicAdditionalLibraries']])
 					libs = list([os.path.join(libPath, lib) if '/' not in lib else lib for lib in libs])
 					module['PublicAdditionalLibraries'] = libs
-			
-			# Older versions of the Unreal Engine don't list system libraries separately, so make sure we always have a list even if it's empty
-			if 'PublicSystemLibraries' not in module:
-				module['PublicSystemLibraries'] = []
+				
+				# Older versions of the Unreal Engine don't list system libraries separately, so make sure we always have a list even if it's empty
+				if 'PublicSystemLibraries' not in module:
+					module['PublicSystemLibraries'] = []
 			
 			# Flatten the lists of paths
 			fields = [
