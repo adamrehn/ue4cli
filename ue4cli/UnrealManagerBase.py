@@ -339,14 +339,14 @@ class UnrealManagerBase(object):
 		# If we're using a source build of the Engine then make sure ShaderCompileWorker is built before building project Editor modules
 		if noTools == False and self.isInstalledBuild() == False and self.isProject(descriptor) and target == 'Editor':
 			Utility.printStderr('Ensuring ShaderCompileWorker is built before building project Editor modules...')
-			self.buildTarget('ShaderCompileWorker', 'Development', [], capture=suppressOutput)
+			self.buildTarget('ShaderCompileWorker', 'Development', [], suppressOutput)
 		
 		# Generate the arguments to pass to UBT
 		target = self.getDescriptorName(descriptor) + target if self.isProject(descriptor) else 'UE4Editor'
 		baseArgs = ['-{}='.format(descriptorType) + descriptor]
 		
 		# Perform the build
-		self._runUnrealBuildTool(target, self.getPlatformIdentifier(), configuration, baseArgs + args, capture=suppressOutput)
+		self._runUnrealBuildTool(target, self.getPlatformIdentifier(), configuration, baseArgs + args, suppressOutput)
 	
 	def buildTarget(self, target, configuration='Development', args=[], suppressOutput=False):
 		"""
