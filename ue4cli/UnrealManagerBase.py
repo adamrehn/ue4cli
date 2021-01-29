@@ -36,7 +36,9 @@ class UnrealManagerBase(object):
 		"""
 				
 		# Set the new root directory
-		ConfigurationManager.setConfigKey('rootDirOverride', os.path.abspath(rootDir))
+		rootDir = os.path.abspath(rootDir)
+		ConfigurationManager.setConfigKey('rootDirOverride', rootDir)
+		print('Set engine root path override: {}'.format(rootDir))
 		
 		# Check that the specified directory is valid and warn the user if it is not
 		try:
