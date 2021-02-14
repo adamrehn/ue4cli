@@ -590,7 +590,6 @@ class UnrealManagerBase(object):
 		"""
 		override = ConfigurationManager.getConfigKey('rootDirOverride')
 		if override != None:
-			Utility.printStderr('Using user-specified engine root: ' + override)
 			return override
 		else:
 			return self._detectEngineRoot()
