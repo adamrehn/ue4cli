@@ -36,7 +36,7 @@ class UnrealManagerLinux(UnrealManagerUnix):
 		potentialLauncherPaths = [
 			os.path.join(os.environ['HOME'], '.local', 'share', 'applications', 'UE4Editor.desktop'),
 			os.path.join(os.environ['HOME'], '.local', 'share', 'applications', 'com.epicgames.UnrealEngineEditor.desktop')
-			]
+		]
 		for launcherPath in potentialLauncherPaths:
 			if os.path.exists(launcherPath):
 				with open(launcherPath, 'r') as f:
