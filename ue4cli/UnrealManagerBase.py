@@ -362,7 +362,7 @@ class UnrealManagerBase(object):
 		"""
 		projectFile = self.getProjectDescriptor(dir) if dir is not None else ''
 		extraFlags = ['-debug'] + args if debug == True else args
-		Utility.run([self.getEditorBinary(True), projectFile, '-stdout', '-FullStdOutLogOutput'] + extraFlags, raiseOnError=True)
+		Utility.run([self.getEditorBinary(True), projectFile] + extraFlags + ['-stdout', '-FullStdOutLogOutput'], raiseOnError=True)
 	
 	def runUAT(self, args):
 		"""
