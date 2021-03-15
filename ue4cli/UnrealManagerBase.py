@@ -408,8 +408,11 @@ class UnrealManagerBase(object):
 		if buildingClient == True and specifiedMaps == False:
 			extraArgs.append('-allmaps')
 		
+		# Automatically set the archive directory if the user has not explicitly specified one
+		if (len(Utility.findArgs(extraArgs, ['-archivedirectory='])) == 0):
+			extraArgs.extend(['-archivedirectory=' + os.path.join(os.path.abspath(dir), 'dist')])
+		
 		# Invoke UAT to package the build
-		distDir = os.path.join(os.path.abspath(dir), 'dist')
 		self.runUAT([
 			'BuildCookRun',
 			'-utf8output',
@@ -422,8 +425,7 @@ class UnrealManagerBase(object):
 			'-stage',
 			'-prereqs',
 			pakArg,
-			'-archive',
-			'-archivedirectory=' + distDir
+			'-archive'
 		] + extraArgs)
 	
 	def packagePlugin(self, dir=os.getcwd(), extraArgs=[]):
