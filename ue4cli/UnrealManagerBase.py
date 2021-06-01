@@ -399,8 +399,11 @@ class UnrealManagerBase(object):
 		if configuration == 'Shipping':
 			extraArgs.append('-nodebuginfo')
 		
-		# Do not create a .pak file when packaging for HTML5
-		pakArg = '-package' if platform.upper() == 'HTML5' else '-pak'
+		# Do not create a .pak file when packaging for HTML5 or on user request
+		pakArg = '-pak'
+		packageArg = Utility.findArgs(extraArgs, ['-package'])
+		if platform.upper() == 'HTML5' or len(packageArg) > 0:
+			pakArg = ''
 		
 		# Include the `-allmaps` flag if we are building a client target and haven't specified a list of maps
 		buildingClient = (len(Utility.findArgs(extraArgs, ['-noclient'])) == 0)
