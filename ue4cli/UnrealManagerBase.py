@@ -437,7 +437,7 @@ class UnrealManagerBase(object):
 		# Invoke UAT to package the build
 		distDir = os.path.join(os.path.abspath(dir), 'dist')
 		self.runUAT([
-			'BuildPlugin',
+			'BuildPlugin'
 			] + extraArgs + [
 			'-Plugin=' + self.getPluginDescriptor(dir),
 			'-Package=' + distDir
