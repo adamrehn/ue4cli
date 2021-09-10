@@ -193,15 +193,17 @@ class UnrealManagerBase(object):
 		Retrieves the compiler flags for building against the Unreal-bundled versions of the specified third-party libraries
 		"""
 		fmt = PrintingFormat.singleLine()
-		if libs[0] == '--multiline':
-			fmt = PrintingFormat.multiLine()
-			libs = libs[1:]
-		
 		platformDefaults = True
-		if libs[0] == '--nodefaults':
-			platformDefaults = False
-			libs = libs[1:]
-		
+
+		if libs:
+			if libs[0] == '--multiline':
+				fmt = PrintingFormat.multiLine()
+				libs = libs[1:]
+
+			if libs[0] == '--nodefaults':
+				platformDefaults = False
+				libs = libs[1:]
+
 		details = self.getThirdpartyLibs(libs, includePlatformDefaults=platformDefaults)
 		return details.getCompilerFlags(self.getEngineRoot(), fmt)
 	
@@ -210,20 +212,22 @@ class UnrealManagerBase(object):
 		Retrieves the linker flags for building against the Unreal-bundled versions of the specified third-party libraries
 		"""
 		fmt = PrintingFormat.singleLine()
-		if libs[0] == '--multiline':
-			fmt = PrintingFormat.multiLine()
-			libs = libs[1:]
-		
 		includeLibs = True
-		if (libs[0] == '--flagsonly'):
-			includeLibs = False
-			libs = libs[1:]
-		
 		platformDefaults = True
-		if libs[0] == '--nodefaults':
-			platformDefaults = False
-			libs = libs[1:]
-		
+
+		if libs:
+			if libs[0] == '--multiline':
+				fmt = PrintingFormat.multiLine()
+				libs = libs[1:]
+
+			if (libs[0] == '--flagsonly'):
+				includeLibs = False
+				libs = libs[1:]
+
+			if libs[0] == '--nodefaults':
+				platformDefaults = False
+				libs = libs[1:]
+
 		details = self.getThirdpartyLibs(libs, includePlatformDefaults=platformDefaults)
 		return details.getLinkerFlags(self.getEngineRoot(), fmt, includeLibs)
 	
@@ -232,15 +236,17 @@ class UnrealManagerBase(object):
 		Retrieves the CMake invocation flags for building against the Unreal-bundled versions of the specified third-party libraries
 		"""
 		fmt = PrintingFormat.singleLine()
-		if libs[0] == '--multiline':
-			fmt = PrintingFormat.multiLine()
-			libs = libs[1:]
-		
 		platformDefaults = True
-		if libs[0] == '--nodefaults':
-			platformDefaults = False
-			libs = libs[1:]
-		
+
+		if libs:
+			if libs[0] == '--multiline':
+				fmt = PrintingFormat.multiLine()
+				libs = libs[1:]
+
+			if libs[0] == '--nodefaults':
+				platformDefaults = False
+				libs = libs[1:]
+
 		details = self.getThirdpartyLibs(libs, includePlatformDefaults=platformDefaults)
 		CMakeCustomFlags.processLibraryDetails(details)
 		return details.getCMakeFlags(self.getEngineRoot(), fmt)
@@ -250,10 +256,10 @@ class UnrealManagerBase(object):
 		Retrieves the list of include directories for building against the Unreal-bundled versions of the specified third-party libraries
 		"""
 		platformDefaults = True
-		if libs[0] == '--nodefaults':
+		if libs and libs[0] == '--nodefaults':
 			platformDefaults = False
 			libs = libs[1:]
-		
+
 		details = self.getThirdpartyLibs(libs, includePlatformDefaults=platformDefaults)
 		return details.getIncludeDirectories(self.getEngineRoot(), delimiter='\n')
 	
@@ -262,10 +268,10 @@ class UnrealManagerBase(object):
 		Retrieves the list of library files for building against the Unreal-bundled versions of the specified third-party libraries
 		"""
 		platformDefaults = True
-		if libs[0] == '--nodefaults':
+		if libs and libs[0] == '--nodefaults':
 			platformDefaults = False
 			libs = libs[1:]
-		
+
 		details = self.getThirdpartyLibs(libs, includePlatformDefaults=platformDefaults)
 		return details.getLibraryFiles(self.getEngineRoot(), delimiter='\n')
 	
@@ -274,7 +280,7 @@ class UnrealManagerBase(object):
 		Retrieves the list of preprocessor definitions for building against the Unreal-bundled versions of the specified third-party libraries
 		"""
 		platformDefaults = True
-		if libs[0] == '--nodefaults':
+		if libs and libs[0] == '--nodefaults':
 			platformDefaults = False
 			libs = libs[1:]
 		
