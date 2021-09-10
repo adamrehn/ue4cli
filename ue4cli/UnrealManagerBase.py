@@ -414,7 +414,8 @@ class UnrealManagerBase(object):
 		
 		# Invoke UAT to package the build
 		self.runUAT([
-			'BuildCookRun',
+			'BuildCookRun'
+			] + extraArgs + [
 			'-utf8output',
 			'-clientconfig=' + configuration,
 			'-serverconfig=' + configuration,
@@ -426,7 +427,7 @@ class UnrealManagerBase(object):
 			'-prereqs',
 			pakArg,
 			'-archive'
-		] + extraArgs)
+		])
 	
 	def packagePlugin(self, dir=os.getcwd(), extraArgs=[]):
 		"""
@@ -436,10 +437,11 @@ class UnrealManagerBase(object):
 		# Invoke UAT to package the build
 		distDir = os.path.join(os.path.abspath(dir), 'dist')
 		self.runUAT([
-			'BuildPlugin',
+			'BuildPlugin'
+			] + extraArgs + [
 			'-Plugin=' + self.getPluginDescriptor(dir),
 			'-Package=' + distDir
-		] + extraArgs)
+		])
 	
 	def packageDescriptor(self, dir=os.getcwd(), args=[]):
 		"""
