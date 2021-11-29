@@ -509,7 +509,8 @@ class UnrealManagerBase(object):
 				tests.add(matches[1].strip())
 		
 		# Detect if the Editor terminated abnormally (i.e. not triggered by `automation quit`)
-		if 'PlatformMisc::RequestExit(' not in logOutput.stdout:
+		# In Unreal Engine 4.27.0, the exit method changed from RequestExit to RequestExitWithStatus
+		if 'PlatformMisc::RequestExit(' not in logOutput.stdout and 'PlatformMisc::RequestExitWithStatus(' not in logOutput.stdout:
 			raise RuntimeError(
 				'failed to retrieve the list of automation tests!' +
 				' stdout was: "{}", stderr was: "{}"'.format(logOutput.stdout, logOutput.stderr)
@@ -575,7 +576,8 @@ class UnrealManagerBase(object):
 			print(logOutput.stderr)
 			
 			# Detect abnormal exit conditions (those not triggered by `automation quit`)
-			if 'PlatformMisc::RequestExit(' not in logOutput.stdout:
+			# In Unreal Engine 4.27.0, the exit method changed from RequestExit to RequestExitWithStatus
+			if 'PlatformMisc::RequestExit(' not in logOutput.stdout and 'PlatformMisc::RequestExitWithStatus(' not in logOutput.stdout:
 				sys.exit(1)
 			
 			# Since UE4 doesn't consistently produce accurate exit codes across all platforms, we need to rely on
