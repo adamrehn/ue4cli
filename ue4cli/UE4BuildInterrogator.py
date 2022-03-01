@@ -166,7 +166,10 @@ class UE4BuildInterrogator(object):
 		# (Ensure we always perform sentinel file cleanup even when errors occur)
 		try:
 			args = ['-Mode=JsonExport', '-OutputFile=' +jsonFile ] if self.engineVersion['MinorVersion'] >= 22 else ['-gather', '-jsonexport=' + jsonFile, '-SkipBuild']
-			self.runUBTFunc('UE4Editor', platformIdentifier, configuration, args)
+			if self.engineVersion['MajorVersion'] >= 5:
+				self.runUBTFunc('UnrealEditor', platformIdentifier, configuration, args)
+			else:
+				self.runUBTFunc('UE4Editor', platformIdentifier, configuration, args)
 		finally:
 			if renameSentinel == True:
 				shutil.move(sentinelBackup, sentinelFile)
