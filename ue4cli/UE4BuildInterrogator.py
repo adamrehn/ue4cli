@@ -165,7 +165,7 @@ class UE4BuildInterrogator(object):
 		# Invoke UnrealBuildTool in JSON export mode (make sure we specify gathering mode, since this is a prerequisite of JSON export)
 		# (Ensure we always perform sentinel file cleanup even when errors occur)
 		try:
-			args = ['-Mode=JsonExport', '-OutputFile=' +jsonFile ] if self.engineVersion['MinorVersion'] >= 22 else ['-gather', '-jsonexport=' + jsonFile, '-SkipBuild']
+			args = ['-Mode=JsonExport', '-OutputFile=' +jsonFile ] if (self.engineVersion['MajorVersion'] >= 5 or self.engineVersion['MinorVersion'] >= 22) else ['-gather', '-jsonexport=' + jsonFile, '-SkipBuild']
 			if self.engineVersion['MajorVersion'] >= 5:
 				self.runUBTFunc('UnrealEditor', platformIdentifier, configuration, args)
 			else:
