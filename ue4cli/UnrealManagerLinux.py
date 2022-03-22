@@ -4,21 +4,6 @@ from .UnrealManagerUnix import UnrealManagerUnix
 from .Utility import Utility
 import re, os
 
-# Details for libc++
-LIBCXX_LIBDIR = '%UE4_ROOT%/Engine/Source/ThirdParty/Linux/LibCxx/lib/Linux/x86_64-unknown-linux-gnu'
-LIBCXX_DETAILS_OVERRIDE = ThirdPartyLibraryDetails(
-	prefixDirs  = [],
-	includeDirs = [
-		'%UE4_ROOT%/Engine/Source/ThirdParty/Linux/LibCxx/include',
-		'%UE4_ROOT%/Engine/Source/ThirdParty/Linux/LibCxx/include/c++/v1'
-	],
-	linkDirs    = [LIBCXX_LIBDIR],
-	libs        = ['{}/libc++.a'.format(LIBCXX_LIBDIR), '{}/libc++abi.a'.format(LIBCXX_LIBDIR), '-lm', '-lc', '-lgcc_s', '-lgcc'],
-	cxxFlags    = ['-fPIC', '-nostdinc++'],
-	ldFlags     = ['-nodefaultlibs'],
-	cmakeFlags  = []
-)
-
 class UnrealManagerLinux(UnrealManagerUnix):
 	
 	def getPlatformIdentifier(self):
@@ -66,4 +51,21 @@ class UnrealManagerLinux(UnrealManagerUnix):
 		return ['libc++']
 	
 	def _getLibraryOverrides(self):
-		return {'libc++': LIBCXX_DETAILS_OVERRIDE}
+		# Details for libc++
+		osType = 'Unix' if self._getEngineVersionDetails()['MajorVersion'] >= 5 else 'Linux'
+		libCXXRoot = '%UE4_ROOT%/Engine/Source/ThirdParty/{0}/LibCxx'.format(osType)
+		libCXXLibDir = '{}/lib/{}/x86_64-unknown-linux-gnu'.format(libCXXRoot, osType)
+		libCXXDetailsOverride = ThirdPartyLibraryDetails(
+			prefixDirs  = [],
+			includeDirs = [
+				'{}/include'.format(libCXXRoot),
+				'{}/include/c++/v1'.format(libCXXRoot)
+			],
+			linkDirs    = [libCXXLibDir],
+			libs        = ['{}/libc++.a'.format(libCXXLibDir), '{}/libc++abi.a'.format(libCXXLibDir), '-lm', '-lc', '-lgcc_s', '-lgcc'],
+			cxxFlags    = ['-fPIC', '-nostdinc++'],
+			ldFlags     = ['-nodefaultlibs'],
+			cmakeFlags  = []
+		)
+		
+		return {'libc++': libCXXDetailsOverride}
