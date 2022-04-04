@@ -408,7 +408,13 @@ class UnrealManagerBase(object):
 			extraArgs.append('-serverplatform={}'.format(platform))
 		
 		# If we are packaging a Shipping build, do not include debug symbols
-		if configuration == 'Shipping':
+		preserveDebugArgs = Utility.findArgs(extraArgs, ['-preservedebug'])
+		if len(preserveDebugArgs) > 0:
+			stripDebug = False
+		else:
+			stripDebug = configuration == 'Shipping'
+		extraArgs = Utility.stripArgs(extraArgs, ['-preservedebug'])
+		if stripDebug:
 			extraArgs.append('-nodebuginfo')
 		
 		# Define the usage of pak files, default value is pak files for all platforms except HTML5
