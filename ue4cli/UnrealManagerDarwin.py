@@ -20,8 +20,12 @@ class UnrealManagerDarwin(UnrealManagerUnix):
 	
 	def _detectEngineRoot(self):
 		
-		# Under macOS, the default installation path is `/Users/Shared/Epic Games/UE_4.XX`
+		# Under macOS, the default installation path is `/Users/Shared/Epic Games/UE_4.XX/UE_5.XX`
 		baseDir = '/Users/Shared/Epic Games/'
+		if version < parse_version('5.0.0'):
+			prefix = 'UE_4.'
+		else:
+			prefix = 'UE_5.'
 		prefix = 'UE_4.'
 		versionDirs = glob.glob(baseDir + prefix + '*')
 		if len(versionDirs) > 0:
@@ -30,10 +34,14 @@ class UnrealManagerDarwin(UnrealManagerUnix):
 			return baseDir + prefix + str(newestVersion)
 		
 		# Could not auto-detect the Unreal Engine location
-		raise UnrealManagerException('could not detect the location of the latest installed Unreal Engine 4 version')
+		raise UnrealManagerException('could not detect the location of the latest installed Unreal Engine version')
 	
 	def _editorPathSuffix(self, cmdVersion):
-		return '.app/Contents/MacOS/UE4Editor'
+		version = parse_version(self.getEngineVersion())
+		if version < parse_version('5.0.0'):
+			return '.app/Contents/MacOS/UE4Editor'
+		else:
+			return '.app/Contents/MacOS/UnrealEditor'
 	
 	def _transformBuildToolPlatform(self, platform):
 		# Prior to 4.22.2, Build.sh under Mac requires "macosx" as the platform name for macOS

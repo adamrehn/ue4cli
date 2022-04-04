@@ -100,10 +100,13 @@ class UnrealManagerBase(object):
 	
 	def getEditorBinary(self, cmdVersion=False):
 		"""
-		Determines the location of the UE4Editor binary
+		Determines the location of the UE4Editor/UnrealEditor binary
 		"""
-		return os.path.join(self.getEngineRoot(), 'Engine', 'Binaries', self.getPlatformIdentifier(), 'UE4Editor' + self._editorPathSuffix(cmdVersion))
-	
+		if self._getEngineVersionDetails()['MajorVersion'] >= 5:
+			return os.path.join(self.getEngineRoot(), 'Engine', 'Binaries', self.getPlatformIdentifier(), 'UnrealEditor' + self._editorPathSuffix(cmdVersion))
+		else:
+			return os.path.join(self.getEngineRoot(), 'Engine', 'Binaries', self.getPlatformIdentifier(), 'UE4Editor' + self._editorPathSuffix(cmdVersion))	
+
 	def getBuildScript(self):
 		"""
 		Determines the location of the script file to perform builds
@@ -350,7 +353,10 @@ class UnrealManagerBase(object):
 			self.buildTarget('ShaderCompileWorker', 'Development', [], suppressOutput)
 		
 		# Generate the arguments to pass to UBT
-		target = self.getDescriptorName(descriptor) + target if self.isProject(descriptor) else 'UE4Editor'
+		if self._getEngineVersionDetails()['MajorVersion'] >= 5:
+			target = self.getDescriptorName(descriptor) + target if self.isProject(descriptor) else 'UnrealEditor'
+		else:
+			target = self.getDescriptorName(descriptor) + target if self.isProject(descriptor) else 'UE4Editor'
 		baseArgs = ['-{}='.format(descriptorType) + descriptor]
 		
 		# Perform the build
