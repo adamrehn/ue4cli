@@ -407,14 +407,10 @@ class UnrealManagerBase(object):
 		if len(serverArg) > 0 and len(serverPlatformArg) == 0:
 			extraArgs.append('-serverplatform={}'.format(platform))
 		
-		# If we are packaging a Shipping build, do not include debug symbols
-		preserveDebugArgs = Utility.findArgs(extraArgs, ['-preservedebug'])
-		if len(preserveDebugArgs) > 0:
-			stripDebug = False
-		else:
-			stripDebug = configuration == 'Shipping'
-		extraArgs = Utility.stripArgs(extraArgs, ['-preservedebug'])
-		if stripDebug:
+		# If we are packaging a Shipping build, do not include debug symbols unless explicitly requested
+		preserveDebugArg = Utility.findArgs(extraArgs, ['-debuginfo'])
+		extraArgs = Utility.stripArgs(extraArgs, ['-debuginfo'])
+		if configuration == 'Shipping' and len(preserveDebugArg) == 0:
 			extraArgs.append('-nodebuginfo')
 		
 		# Define the usage of pak files, default value is pak files for all platforms except HTML5
