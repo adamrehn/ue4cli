@@ -22,6 +22,7 @@ class UnrealManagerDarwin(UnrealManagerUnix):
 		
 		# Under macOS, the default installation path is `/Users/Shared/Epic Games/UE_4.XX/UE_5.XX`
 		baseDir = '/Users/Shared/Epic Games/'
+		version = parse_version(self.getEngineVersion())
 		if version < parse_version('5.0.0'):
 			prefix = 'UE_4.'
 		else:
