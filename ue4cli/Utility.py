@@ -1,4 +1,4 @@
-import os, platform, shellescape, subprocess, sys
+import os, platform, shlex, subprocess, sys
 
 class CommandOutput(object):
 	"""
@@ -66,7 +66,7 @@ class Utility:
 		if platform.system() == 'Windows':
 			return '"{}"'.format(path.replace('"', '""'))
 		else:
-			return shellescape.quote(path)
+			return shlex.quote(path)
 	
 	@staticmethod
 	def join(delim, items, quotes=False):
