@@ -2,7 +2,7 @@ if: tag IS present
 dist: xenial
 language: python
 python:
-- '3.8'
+- '3.7'
 install:
 - pip install wheel
 script: echo "No build-time tests to run."

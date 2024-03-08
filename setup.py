@@ -13,7 +13,9 @@ setup(
 	long_description_content_type='text/markdown',
 	classifiers=[
 		'License :: OSI Approved :: MIT License',
-		'Programming Language :: Python :: 3.8',
+		'Programming Language :: Python :: 3.5',
+		'Programming Language :: Python :: 3.6',
+		'Programming Language :: Python :: 3.7',
 		'Topic :: Software Development :: Build Tools',
 		'Environment :: Console'
 	],
@@ -24,9 +26,10 @@ setup(
 	license='MIT',
 	packages=['ue4cli'],
 	zip_safe=True,
-	python_requires = '>=3.8',
+	python_requires = '>=3.5',
 	install_requires = [
 		'setuptools>=38.6.0',
+		'shellescape',
 		'twine>=1.11.0',
 		'wheel>=0.31.0'
 	],
