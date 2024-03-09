@@ -11,26 +11,28 @@ class UnrealManagerLinux(UnrealManagerUnix):
 	
 	def _detectEngineRoot(self):
 		
+		# FIXME: With current setup, 'UE4Editor' can be returned instead of:
+		# 'UnrealEditor.desktop' or 'com.epicgames.UnrealEngineEditor.desktop',
+		# which will mean that NOT the highest version will be returned.
+		# Such case would be very rare (mixing different ways of instalations) but it can happen!
+		# (this was always a problem)
+		
 		# If UE4Editor/UnrealEditor is available in the PATH, use its location to detect the root directory path
-		if self._getEngineVersionDetails()['MajorVersion'] >= 5:
-			editorLoc = Utility.capture(['which', 'UnrealEditor']).stdout.strip()
-		else:
-			editorLoc = Utility.capture(['which', 'UE4Editor']).stdout.strip()
-		if editorLoc != '':
-			editorLoc = os.path.dirname(os.path.realpath(editorLoc))
-			return os.path.abspath(editorLoc + '/../../..')
+		potentialEditorLocs = [
+			Utility.capture(['which', 'UnrealEditor']).stdout.strip(),
+			Utility.capture(['which', 'UE4Editor']).stdout.strip(),
+		]
+		for editorLoc in potentialEditorLocs:
+			if editorLoc != '':
+				editorLoc = os.path.dirname(os.path.realpath(editorLoc))
+				return os.path.abspath(editorLoc + '/../../..')
 		
 		# Under Debian-based systems, we can use the desktop integration to find UE4Editor/UnrealEditor
-		if self._getEngineVersionDetails()['MajorVersion'] >= 5:
-			potentialLauncherPaths = [
-				os.path.join(os.environ['HOME'], '.local', 'share', 'applications', 'UnrealEditor.desktop'),
-				os.path.join(os.environ['HOME'], '.local', 'share', 'applications', 'com.epicgames.UnrealEngineEditor.desktop')
-			]
-		else:
-			potentialLauncherPaths = [
-				os.path.join(os.environ['HOME'], '.local', 'share', 'applications', 'UE4.desktop'),
-				os.path.join(os.environ['HOME'], '.local', 'share', 'applications', 'com.epicgames.UnrealEngineEditor.desktop')
-			]
+		potentialLauncherPaths = [
+			os.path.join(os.environ['HOME'], '.local', 'share', 'applications', 'UnrealEditor.desktop'),
+			os.path.join(os.environ['HOME'], '.local', 'share', 'applications', 'com.epicgames.UnrealEngineEditor.desktop'),
+			os.path.join(os.environ['HOME'], '.local', 'share', 'applications', 'UE4.desktop'),
+		]
 		for launcherPath in potentialLauncherPaths:
 			if os.path.exists(launcherPath):
 				with open(launcherPath, 'r') as f:

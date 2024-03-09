@@ -30,6 +30,12 @@ class UnrealManagerBase(object):
 		"""
 		pass
 	
+	def getEngineRootOverride(self):
+		"""
+		Retrieves the user-specified engine root directory if set, otherwise returns None
+		"""
+		return ConfigurationManager.getConfigKey('rootDirOverride')
+	
 	def setEngineRootOverride(self, rootDir):
 		"""
 		Sets a user-specified directory as the root engine directory, overriding any auto-detection
@@ -54,11 +60,24 @@ class UnrealManagerBase(object):
 	
 	def getEngineRoot(self):
 		"""
-		Returns the root directory location of the latest installed version of UE4
+		Returns the root directory location of the latest installed version of UE
 		"""
-		if not hasattr(self, '_engineRoot'):
-			self._engineRoot = self._getEngineRoot()
-		return self._engineRoot
+		
+		if hasattr(self, '_engineRootCached'):
+			return self._engineRootCached
+		
+		override = self.getEngineRootOverride()
+		if override:
+			self._engineRootCached = override
+			Utility.printStderr('Using user-specified engine root: ' + override)
+			return override
+		
+		autodetect = self._detectEngineRoot()
+		if autodetect:
+			self._engineRootCached = autodetect
+			return autodetect
+		
+		raise UnrealManagerException('could not detect Unreal Engine root directory! Please, provide it manually via: ue4 setroot <ROOTDIR>')
 	
 	def getEngineVersion(self, outputFormat = 'full'):
 		"""
@@ -607,17 +626,6 @@ class UnrealManagerBase(object):
 				sys.exit(int(match.group(1)))
 	
 	# "Protected" methods
-	
-	def _getEngineRoot(self):
-		"""
-		Retrieves the user-specified engine root directory override (if set), or else performs auto-detection
-		"""
-		override = ConfigurationManager.getConfigKey('rootDirOverride')
-		if override != None:
-			Utility.printStderr('Using user-specified engine root: ' + override)
-			return override
-		else:
-			return self._detectEngineRoot()
 	
 	def _detectEngineRoot(self):
 		"""
