@@ -22,19 +22,16 @@ class UnrealManagerDarwin(UnrealManagerUnix):
 		
 		# Under macOS, the default installation path is `/Users/Shared/Epic Games/UE_4.XX/UE_5.XX`
 		baseDir = '/Users/Shared/Epic Games/'
-		if version < parse_version('5.0.0'):
-			prefix = 'UE_4.'
-		else:
-			prefix = 'UE_5.'
-		prefix = 'UE_4.'
-		versionDirs = glob.glob(baseDir + prefix + '*')
-		if len(versionDirs) > 0:
-			installedVersions = sorted([int(os.path.basename(d).replace(prefix, '')) for d in versionDirs])
-			newestVersion = max(installedVersions)
-			return baseDir + prefix + str(newestVersion)
+		prefixes = ['UE_5.', 'UE_4.']
+		for prefix in prefixes:
+			versionDirs = glob.glob(baseDir + prefix + '*')
+			if len(versionDirs) > 0:
+				installedVersions = sorted([int(os.path.basename(d).replace(prefix, '')) for d in versionDirs])
+				newestVersion = max(installedVersions)
+				return baseDir + prefix + str(newestVersion)
 		
 		# Could not auto-detect the Unreal Engine location
-		raise UnrealManagerException('could not detect the location of the latest installed Unreal Engine version')
+		return None
 	
 	def _editorPathSuffix(self, cmdVersion):
 		version = parse_version(self.getEngineVersion())

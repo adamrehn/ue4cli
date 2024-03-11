@@ -62,15 +62,16 @@ class UnrealManagerWindows(UnrealManagerBase):
 		
 		# Under Windows, the default installation path is `%PROGRAMFILES%\Epic Games`
 		baseDir = os.environ['PROGRAMFILES'] + '\\Epic Games\\'
-		prefix = 'UE_4.'
-		versionDirs = glob.glob(baseDir + prefix + '*')
-		if len(versionDirs) > 0:
-			installedVersions = sorted([int(os.path.basename(d).replace(prefix, '')) for d in versionDirs])
-			newestVersion = max(installedVersions)
-			return baseDir + prefix + str(newestVersion)
+		prefixes = ['UE_5.', 'UE_4.']
+		for prefix in prefixes:
+			versionDirs = glob.glob(baseDir + prefix + '*')
+			if len(versionDirs) > 0:
+				installedVersions = sorted([int(os.path.basename(d).replace(prefix, '')) for d in versionDirs])
+				newestVersion = max(installedVersions)
+				return baseDir + prefix + str(newestVersion)
 		
 		# Could not auto-detect the Unreal Engine location
-		raise UnrealManagerException('could not detect the location of the latest installed Unreal Engine 4 version')
+		return None
 	
 	def _editorPathSuffix(self, cmdVersion):
 		return '-Cmd.exe' if cmdVersion == True else '.exe'
