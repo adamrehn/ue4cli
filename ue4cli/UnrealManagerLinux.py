@@ -14,7 +14,7 @@ class UnrealManagerLinux(UnrealManagerUnix):
 		# FIXME: With current setup, 'UE4Editor' can be returned instead of:
 		# 'UnrealEditor.desktop' or 'com.epicgames.UnrealEngineEditor.desktop',
 		# which will mean that NOT the highest version will be returned.
-		# Such case would be very rare (mixing different ways of instalations) but it can happen!
+		# Such case would be very rare (mixing different ways of installations) but it can happen!
 		# (this was always a problem)
 		
 		# If UE4Editor/UnrealEditor is available in the PATH, use its location to detect the root directory path
@@ -43,7 +43,7 @@ class UnrealManagerLinux(UnrealManagerUnix):
 						return os.path.abspath(editorLoc + '/../../..')
 		
 		# Could not auto-detect the Unreal Engine location
-		raise UnrealManagerException('could not detect the location of the latest installed Unreal Engine version')
+		return None
 	
 	def _editorPathSuffix(self, cmdVersion):
 		return ''
