@@ -29,7 +29,6 @@ setup(
 	python_requires = '>=3.5',
 	install_requires = [
 		'setuptools>=38.6.0',
-		'shellescape',
 		'twine>=1.11.0',
 		'wheel>=0.31.0'
 	],
