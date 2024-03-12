@@ -20,7 +20,8 @@ class Utility:
 		"""
 		Prints to stderr instead of stdout
 		"""
-		print(*args, file=sys.stderr, **kwargs)
+		if os.environ.get('UE4CLI_QUIET', '0') != '1':
+			print(*args, file=sys.stderr, **kwargs)
 	
 	@staticmethod
 	def readFile(filename):
