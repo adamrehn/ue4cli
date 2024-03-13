@@ -20,4 +20,4 @@ Resources:
 
 ## Legal
 
-Copyright &copy; 2017-2018, Adam Rehn. Licensed under the MIT License, see the file [LICENSE](https://github.com/adamrehn/ue4cli/blob/master/LICENSE) for details.
+Copyright &copy; 2017-2018, Adam Rehn. Licensed under the MIT License, see the file [LICENSE](https://github.com/adamrehn/ue4cli/blob/master/LICENSE) for details. 

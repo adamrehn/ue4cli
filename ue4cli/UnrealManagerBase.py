@@ -494,7 +494,7 @@ class UnrealManagerBase(object):
 		else:
 			self.packagePlugin(dir, args)
 	
-	def runAutomationCommands(self, projectFile, commands, extraArgs, capture=False, enableRHI=False):
+	def runAutomationCommands(self, projectFile, commands, extraArgs, capture=False, enableRHI=False, disableGameArg=False):
 		'''
 		Invokes the Automation Test commandlet for the specified project with the supplied automation test commands
 		'''
@@ -510,7 +510,9 @@ class UnrealManagerBase(object):
 		# preventing them from executing correctly.
 		
 		command = '{} {}'.format(Utility.escapePathForShell(self.getEditorBinary(True)), Utility.escapePathForShell(projectFile))
-		command += ' -game -buildmachine -stdout -fullstdoutlogoutput -forcelogflush -unattended -nopause -nosplash'
+		if disableGameArg == False:
+			command += ' -game'
+		command += ' -buildmachine -stdout -fullstdoutlogoutput -forcelogflush -unattended -nopause -nosplash'
 		if enableRHI == False:
 			command += ' -nullrhi'
 		command += ' -ExecCmds="automation {};quit" '.format(';'.join(commands))
@@ -554,6 +556,10 @@ class UnrealManagerBase(object):
 		enableRHI = len(Utility.findArgs(args, ['--withrhi'])) > 0
 		args = Utility.stripArgs(args, ['--withrhi'])
 		
+		# Determine if tests should be run as a game 
+		disableGameArg = len(Utility.findArgs(args, ['--notgame'])) > 0
+		args = Utility.stripArgs(args, ['--notgame'])
+		
 		# Verify that at least one argument was supplied
 		if len(args) == 0:
 			raise RuntimeError('at least one test name must be specified')
@@ -596,7 +602,7 @@ class UnrealManagerBase(object):
 			
 			# Attempt to run the automation tests
 			Utility.printStderr('Running automation tests...')
-			logOutput = self.runAutomationCommands(projectFile, command, extraArgs, capture=True, enableRHI=enableRHI)
+			logOutput = self.runAutomationCommands(projectFile, command, extraArgs, capture=True, enableRHI=enableRHI, disableGameArg=disableGameArg)
 			
 			# Propagate the log output
 			print(logOutput.stdout)
