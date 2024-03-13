@@ -1,3 +1,4 @@
+from .UnrealManagerException import UnrealManagerException
 from .Utility import Utility
 import json, os, platform
 
@@ -27,7 +28,10 @@ class JsonDataManager(object):
 		Retrieves the entire data dictionary
 		"""
 		if os.path.exists(self.jsonFile):
-			return json.loads(Utility.readFile(self.jsonFile))
+			try:
+				return json.loads(Utility.readFile(self.jsonFile))
+			except json.JSONDecodeError as err:
+				raise UnrealManagerException('malformed JSON configuration file "{}" ({})'.format(self.jsonFile, err))
 		else:
 			return {}
 	
