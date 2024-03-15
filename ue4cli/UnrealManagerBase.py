@@ -22,7 +22,20 @@ class UnrealManagerBase(object):
 		"""
 		Returns the list of valid build configurations supported by UnrealBuildTool
 		"""
-		return ['Debug', 'DebugGame', 'Development', 'Shipping', 'Test']
+		baseConfigurations = ['DebugGame', 'Development', 'Shipping']
+		if not self.isInstalledBuild():
+			baseConfigurations += ['Debug', 'Test']
+		return baseConfigurations
+	
+	def validBuildTargets(self):
+		"""
+		Returns the list of valid build targets supported by UnrealBuildTool
+		"""
+		# FIXME: Missing support for 'Program' build target: https://docs.unrealengine.com/5.3/en-US/unreal-engine-build-tool-target-reference/
+		baseTargets = ['Game', 'Editor']
+		if not self.isInstalledBuild():
+			baseTargets += ['Client', 'Server']
+		return baseTargets
 	
 	def getPlatformIdentifier(self):
 		"""
@@ -117,15 +130,19 @@ class UnrealManagerBase(object):
 		sentinelFile = os.path.join(self.getEngineRoot(), 'Engine', 'Build', 'InstalledBuild.txt')
 		return os.path.exists(sentinelFile)
 	
-	def getEditorBinary(self, cmdVersion=False):
+	def getEditorBinary(self, cmdVersion=False, configuration='Development'):
 		"""
 		Determines the location of the UE4Editor/UnrealEditor binary
 		"""
-		if self._getEngineVersionDetails()['MajorVersion'] >= 5:
-			return os.path.join(self.getEngineRoot(), 'Engine', 'Binaries', self.getPlatformIdentifier(), 'UnrealEditor' + self._editorPathSuffix(cmdVersion))
-		else:
-			return os.path.join(self.getEngineRoot(), 'Engine', 'Binaries', self.getPlatformIdentifier(), 'UE4Editor' + self._editorPathSuffix(cmdVersion))	
-
+		supportedConfigurations = ['Debug', 'DebugGame', 'Development']
+		if configuration not in supportedConfigurations:
+			raise UnrealManagerException("Editor supports only following configurations: " + str(supportedConfigurations))
+		platformIdentifier = self.getPlatformIdentifier()
+		coreName = 'UnrealEditor' if self._getEngineVersionDetails()['MajorVersion'] >= 5 else 'UE4Editor'
+		if configuration != 'Development':
+			coreName += '-' + platformIdentifier + '-' + configuration
+		return os.path.join(self.getEngineRoot(), 'Engine', 'Binaries', platformIdentifier, coreName + self._editorPathSuffix(cmdVersion))
+	
 	def getBuildScript(self):
 		"""
 		Determines the location of the script file to perform builds
@@ -360,6 +377,9 @@ class UnrealManagerBase(object):
 		# Verify that the specified build configuration is valid
 		if configuration not in self.validBuildConfigurations():
 			raise UnrealManagerException('invalid build configuration "' + configuration + '"')
+		# Verify that the specified build target is valid
+		if target not in self.validBuildTargets():
+			raise UnrealManagerException('invalid build target "' + target + '"')
 		
 		# Check if the user specified the `-notools` flag to opt out of building Engine tools when working with source builds
 		unstripped = list(args)
@@ -370,6 +390,10 @@ class UnrealManagerBase(object):
 		if noTools == False and self.isInstalledBuild() == False and self.isProject(descriptor) and target == 'Editor':
 			Utility.printStderr('Ensuring ShaderCompileWorker is built before building project Editor modules...')
 			self.buildTarget('ShaderCompileWorker', 'Development', [], suppressOutput)
+		
+		# Game target does NOT use any postfix
+		if target == 'Game':
+			target = ''
 		
 		# Generate the arguments to pass to UBT
 		if self._getEngineVersionDetails()['MajorVersion'] >= 5:
@@ -387,13 +411,13 @@ class UnrealManagerBase(object):
 		"""
 		self._runUnrealBuildTool(target, self.getPlatformIdentifier(), configuration, args, capture=suppressOutput)
 	
-	def runEditor(self, dir=os.getcwd(), debug=False, args=[]):
+	def runEditor(self, dir=os.getcwd(), debug=False, args=[], configuration='Development'):
 		"""
 		Runs the editor for the Unreal project in the specified directory (or without a project if dir is None)
 		"""
 		projectFile = self.getProjectDescriptor(dir) if dir is not None else ''
 		extraFlags = ['-debug'] + args if debug == True else args
-		Utility.run([self.getEditorBinary(True), projectFile] + extraFlags + ['-stdout', '-FullStdOutLogOutput'], raiseOnError=True)
+		Utility.run([self.getEditorBinary(True, configuration), projectFile] + extraFlags + ['-stdout', '-FullStdOutLogOutput'], raiseOnError=True)
 	
 	def runUAT(self, args):
 		"""

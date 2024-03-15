@@ -45,8 +45,8 @@ SUPPORTED_COMMANDS = {
 	
 	'editor': {
 		'description': 'Run the editor without an Unreal project (useful for creating new projects)',
-		'action': lambda m, args: m.runEditor(None, False, args),
-		'args': '[EXTRA ARGS]'
+		'action': lambda m, args: m.runEditor(None, False, args, args.pop(0) if (len(args) > 0) else 'Development'),
+		'args': '[CONFIGURATION] [EXTRA ARGS]'
 	},
 	
 	'build-target': {
@@ -60,9 +60,10 @@ SUPPORTED_COMMANDS = {
 		'action': lambda m, args: m.runEditor(
 			os.getcwd(),
 			True if '--debug' in args else False,
-			list([arg for arg in args if arg != '--debug'])
+			list([arg for arg in args if arg != '--debug']),
+			args.pop(0) if (len(args) > 0 and args[0].startswith('-') == False) else 'Development',
 		),
-		'args': '[--debug] [EXTRA ARGS]'
+		'args': '[CONFIGURATION] [--debug] [EXTRA ARGS]'
 	},
 	
 	'gen': {
