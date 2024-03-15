@@ -22,14 +22,20 @@ class UnrealManagerBase(object):
 		"""
 		Returns the list of valid build configurations supported by UnrealBuildTool
 		"""
-		return ['Debug', 'DebugGame', 'Development', 'Shipping', 'Test']
+		baseConfigurations = ['DebugGame', 'Development', 'Shipping']
+		if not self.isInstalledBuild():
+			baseConfigurations += ['Debug', 'Test']
+		return baseConfigurations
 	
 	def validBuildTargets(self):
 		"""
 		Returns the list of valid build targets supported by UnrealBuildTool
 		"""
 		# FIXME: Missing support for 'Program' build target: https://docs.unrealengine.com/5.3/en-US/unreal-engine-build-tool-target-reference/
-		return ['Game', 'Editor', 'Client', 'Server']
+		baseTargets = ['Game', 'Editor']
+		if not self.isInstalledBuild():
+			baseTargets += ['Client', 'Server']
+		return baseTargets
 	
 	def getPlatformIdentifier(self):
 		"""
