@@ -44,13 +44,13 @@ class UnrealManagerBase(object):
 		# Set the new root directory
 		rootDir = os.path.abspath(rootDir)
 		ConfigurationManager.setConfigKey('rootDirOverride', rootDir)
-		print('Set engine root path override: {}'.format(rootDir))
+		Utility.printStderr('Setting engine root path override:', str(rootDir))
 		
 		# Check that the specified directory is valid and warn the user if it is not
 		try:
 			self.getEngineVersion()
 		except:
-			print('Warning: the specified directory does not appear to contain a valid version of the Unreal Engine.')
+			UnrealManagerException('the specified directory does not appear to contain a valid version of the Unreal Engine.')
 	
 	def clearEngineRootOverride(self):
 		"""
@@ -94,7 +94,7 @@ class UnrealManagerBase(object):
 		
 		# Verify that the requested output format is valid
 		if outputFormat not in formats:
-			raise Exception('unreconised version output format "{}"'.format(outputFormat))
+			raise UnrealManagerException('unreconised version output format "{}"'.format(outputFormat))
 		
 		return formats[outputFormat]
 	
@@ -538,7 +538,7 @@ class UnrealManagerBase(object):
 		# Detect if the Editor terminated abnormally (i.e. not triggered by `automation quit`)
 		# In Unreal Engine 4.27.0, the exit method changed from RequestExit to RequestExitWithStatus
 		if 'PlatformMisc::RequestExit(' not in logOutput.stdout and 'PlatformMisc::RequestExitWithStatus(' not in logOutput.stdout:
-			raise RuntimeError(
+			raise UnrealManagerException(
 				'failed to retrieve the list of automation tests!' +
 				' stdout was: "{}", stderr was: "{}"'.format(logOutput.stdout, logOutput.stderr)
 			)
@@ -556,7 +556,7 @@ class UnrealManagerBase(object):
 		
 		# Verify that at least one argument was supplied
 		if len(args) == 0:
-			raise RuntimeError('at least one test name must be specified')
+			raise UnrealManagerException('at least one test name must be specified')
 		
 		# Gather any additional arguments to pass directly to the Editor
 		extraArgs = []
@@ -605,7 +605,7 @@ class UnrealManagerBase(object):
 			# Detect abnormal exit conditions (those not triggered by `automation quit`)
 			# In Unreal Engine 4.27.0, the exit method changed from RequestExit to RequestExitWithStatus
 			if 'PlatformMisc::RequestExit(' not in logOutput.stdout and 'PlatformMisc::RequestExitWithStatus(' not in logOutput.stdout:
-				sys.exit(1)
+				raise UnrealManagerException('abnormal exit condition')
 			
 			# Since UE4 doesn't consistently produce accurate exit codes across all platforms, we need to rely on
 			# text-based heuristics to detect failed automation tests or errors related to not finding any tests to run
@@ -618,12 +618,14 @@ class UnrealManagerBase(object):
 			]
 			for errorStr in errorStrings:
 				if errorStr in logOutput.stdout:
-					sys.exit(1)
+					raise UnrealManagerException('abnormal exit condition')
 			
 			# If an explicit exit code was specified in the output text then identify it and propagate it
 			match = re.search('TEST COMPLETE\\. EXIT CODE: ([0-9]+)', logOutput.stdout + logOutput.stderr)
 			if match is not None:
 				sys.exit(int(match.group(1)))
+			else:
+				raise UnrealManagerException('abnormal exit condition')
 	
 	# "Protected" methods
 	

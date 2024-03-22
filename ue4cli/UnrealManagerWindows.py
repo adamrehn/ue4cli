@@ -52,7 +52,7 @@ class UnrealManagerWindows(UnrealManagerBase):
 		# If we are using our custom batch file, use the appropriate arguments
 		genScript = self.getGenerateScript()
 		projectFile = self.getProjectDescriptor(dir)
-		print(projectFile)
+		Utility.printStderr('Using project file:', projectFile)
 		if '.ue4\\GenerateProjectFiles.bat' in genScript:
 			Utility.run([genScript, projectFile], raiseOnError=True)
 		else:

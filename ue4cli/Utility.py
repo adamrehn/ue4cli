@@ -21,7 +21,7 @@ class Utility:
 		Prints to stderr instead of stdout
 		"""
 		if os.environ.get('UE4CLI_QUIET', '0') != '1':
-			print(*args, file=sys.stderr, **kwargs)
+			print('(ue4cli)', *args, end='\n', file=sys.stderr, **kwargs)
 	
 	@staticmethod
 	def readFile(filename):
@@ -123,7 +123,7 @@ class Utility:
 		
 		# If the child process failed and we were asked to raise an exception, do so
 		if raiseOnError == True and proc.returncode != 0:
-			raise Exception(
+			raise subprocess.SubprocessError(
 				'child process ' + str(command) +
 				' failed with exit code ' + str(proc.returncode) +
 				'\nstdout: "' + stdout + '"' +
@@ -143,7 +143,7 @@ class Utility:
 		
 		returncode = subprocess.call(command, cwd=cwd, shell=shell)
 		if raiseOnError == True and returncode != 0:
-			raise Exception('child process ' + str(command) + ' failed with exit code ' + str(returncode))
+			raise subprocess.SubprocessError('child process ' + str(command) + ' failed with exit code ' + str(returncode))
 		return returncode
 	
 	@staticmethod
@@ -152,4 +152,4 @@ class Utility:
 		Prints a command if verbose output is enabled
 		"""
 		if os.environ.get('UE4CLI_VERBOSE', '0') == '1':
-			Utility.printStderr('[UE4CLI] EXECUTE COMMAND:', command)
+			Utility.printStderr('EXECUTE COMMAND:', command)

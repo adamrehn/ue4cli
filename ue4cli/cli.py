@@ -2,7 +2,10 @@ from collections import OrderedDict
 from .PluginManager import PluginManager
 from .UnrealManagerException import UnrealManagerException
 from .UnrealManagerFactory import UnrealManagerFactory
-import os, sys
+from .Utility import Utility
+from subprocess import SubprocessError
+from json import JSONDecodeError
+import os, sys, logging
 
 # Our list of supported commands
 SUPPORTED_COMMANDS = {
@@ -201,6 +204,7 @@ def displayHelp():
 
 def main():
 	try:
+		logger = logging.getLogger(__name__)
 		
 		# Perform plugin detection and register our detected plugins
 		plugins = PluginManager.getPlugins()
@@ -222,7 +226,20 @@ def main():
 			SUPPORTED_COMMANDS[command]['action'](manager, args)
 		else:
 			raise UnrealManagerException('unrecognised command "' + command + '"')
-		
-	except UnrealManagerException as e:
-		print('Error: ' + str(e))
+	except (
+			UnrealManagerException,
+			OSError,
+			SubprocessError,
+			JSONDecodeError,
+			KeyboardInterrupt,
+			) as e:
+		Utility.printStderr('(' + type(e).__name__ + ')', str(e))
 		sys.exit(1)
+	except BaseException as e:
+		Utility.printStderr('Unhandled exception! Crashing...')
+		logging.basicConfig(level=logging.DEBUG)
+		logger.exception(e)
+		Utility.printStderr('ue4cli has crashed! Please, report it at: https://github.com/adamrehn/ue4cli/issues')
+		sys.exit(1)
+
+
