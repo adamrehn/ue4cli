@@ -50,7 +50,7 @@ class UnrealManagerBase(object):
 		try:
 			self.getEngineVersion()
 		except:
-			UnrealManagerException('the specified directory does not appear to contain a valid version of the Unreal Engine.')
+			raise UnrealManagerException('the specified directory does not appear to contain a valid version of the Unreal Engine.')
 	
 	def clearEngineRootOverride(self):
 		"""
