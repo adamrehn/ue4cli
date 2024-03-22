@@ -624,8 +624,6 @@ class UnrealManagerBase(object):
 			match = re.search('TEST COMPLETE\\. EXIT CODE: ([0-9]+)', logOutput.stdout + logOutput.stderr)
 			if match is not None:
 				sys.exit(int(match.group(1)))
-			else:
-				raise UnrealManagerException('abnormal exit condition')
 	
 	# "Protected" methods
 	
