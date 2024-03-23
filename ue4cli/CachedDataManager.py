@@ -1,6 +1,7 @@
 from .ConfigurationManager import ConfigurationManager
 from .JsonDataManager import JsonDataManager
-import os, shutil
+from .Utility import Utility
+import os
 
 class CachedDataManager(object):
 	"""
@@ -13,7 +14,7 @@ class CachedDataManager(object):
 		Clears any cached data we have stored about specific engine versions
 		"""
 		if os.path.exists(CachedDataManager._cacheDir()) == True:
-			shutil.rmtree(CachedDataManager._cacheDir())
+			Utility.removeDir(CachedDataManager._cacheDir())
 	
 	@staticmethod
 	def getCachedDataKey(engineVersionHash, key):

@@ -1,5 +1,5 @@
 from .UtilityException import UtilityException
-import os, platform, shlex, subprocess, sys
+import os, platform, shlex, subprocess, sys, shutil
 
 class CommandOutput(object):
 	"""
@@ -47,6 +47,16 @@ class Utility:
 			raise UtilityException(f'failed to write file {str(filename)} due to {type(e).__name__} {str(e)}')
 	
 	@staticmethod
+	def moveFile(src, dst):
+		"""
+		Moves file from 'src' to 'dst'
+		"""
+		try:
+			shutil.move(src, dst)
+		except OSError as e:
+			raise UtilityException(f'failed to move {str(src)} to {str(dst)} due to {type(e).__name__} {str(e)}')
+	
+	@staticmethod
 	def patchFile(filename, replacements):
 		"""
 		Applies the supplied list of replacements to a file
@@ -58,6 +68,26 @@ class Utility:
 			patched = patched.replace(key, replacements[key])
 		
 		Utility.writeFile(filename, patched)
+	
+	@staticmethod
+	def removeDir(path, ignore_errors=False):
+		"""
+		Recursively remove directory tree
+		"""
+		try:
+			shutil.rmtree(path, ignore_errors)
+		except OSError as e:
+			raise UtilityException(f'failed to remove directory {str(path)} due to {type(e).__name__} {str(e)}')
+	
+	@staticmethod
+	def makeDirs(name, mode=0o777, exist_ok=False):
+		"""
+		Makes directory
+		"""
+		try:
+			os.makedirs(name, mode, exist_ok)
+		except OSError as e:
+			raise UtilityException(f'failed to create directory {str(name)} due to {type(e).__name__} {str(e)}')
 	
 	@staticmethod
 	def forwardSlashes(paths):

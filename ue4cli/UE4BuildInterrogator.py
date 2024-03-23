@@ -3,7 +3,8 @@ from .UnrealManagerException import UnrealManagerException
 from .CachedDataManager import CachedDataManager
 from .Utility import Utility
 from .UtilityException import UtilityException
-import json, os, platform, shutil, tempfile
+from .JsonDataManager import JsonDataManager
+import os, tempfile
 
 class UE4BuildInterrogator(object):
 	
@@ -163,10 +164,7 @@ class UE4BuildInterrogator(object):
 		sentinelBackup = sentinelFile + '.bak'
 		renameSentinel = os.path.exists(sentinelFile) and os.environ.get('UE4CLI_SENTINEL_RENAME', '0') == '1'
 		if renameSentinel == True:
-			try:
-				shutil.move(sentinelFile, sentinelBackup)
-			except OSError as e:
-				raise UtilityException(f'failed to move {str(sentinelFile)} to {str(sentinelBackup)} due to {type(e).__name__} {str(e)}')
+			Utility.moveFile(sentinelFile, sentinelBackup)
 		
 		# Invoke UnrealBuildTool in JSON export mode (make sure we specify gathering mode, since this is a prerequisite of JSON export)
 		# (Ensure we always perform sentinel file cleanup even when errors occur)
@@ -178,16 +176,10 @@ class UE4BuildInterrogator(object):
 				self.runUBTFunc('UE4Editor', platformIdentifier, configuration, args)
 		finally:
 			if renameSentinel == True:
-				try:
-					shutil.move(sentinelBackup, sentinelFile)
-				except OSError as e:
-					raise UtilityException(f'failed to move {str(sentinelBackup)} to {str(sentinelFile)} due to {type(e).__name__} {str(e)}')
+				Utility.moveFile(sentinelBackup, sentinelFile)
 		
 		# Parse the JSON output
-		try:
-			result = json.loads(Utility.readFile(jsonFile))
-		except json.JSONDecodeError as e:
-			raise UtilityException(f'failed to load {str(jsonFile)} due to {type(e).__name__} {str(e)}')
+		result = JsonDataManager(jsonFile).loads()
 		
 		# Extract the list of third-party library modules
 		# (Note that since UE4.21, modules no longer have a "Type" field, so we must
@@ -200,7 +192,7 @@ class UE4BuildInterrogator(object):
 		
 		# Remove the temp directory
 		try:
-			shutil.rmtree(tempDir)
+			Utility.removeDir(tempDir)
 		except:
 			pass
 		

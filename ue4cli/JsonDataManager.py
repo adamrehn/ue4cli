@@ -1,7 +1,7 @@
 from .UnrealManagerException import UnrealManagerException
 from .Utility import Utility
 from .UtilityException import UtilityException
-import json, os, platform
+import json, os
 
 class JsonDataManager(object):
 	"""
@@ -13,6 +13,18 @@ class JsonDataManager(object):
 		Creates a new JsonDataManager instance for the specified JSON file
 		"""
 		self.jsonFile = jsonFile
+
+	def loads(self):
+		"""
+		Wrapper for json.loads which reads owned jsonFile and loads it
+		In case of encountering JSONDecodeError, it will raise UtilityException
+		"""
+		try:
+			path = self.jsonFile
+			file = Utility.readFile(path)
+			return json.loads(file)
+		except json.JSONDecodeError as e:
+			raise UtilityException(f'failed to load {str(path)} due to {type(e).__name__} {str(e)}')
 	
 	def getKey(self, key):
 		"""
@@ -29,10 +41,7 @@ class JsonDataManager(object):
 		Retrieves the entire data dictionary
 		"""
 		if os.path.exists(self.jsonFile):
-			try:
-				return json.loads(Utility.readFile(self.jsonFile))
-			except json.JSONDecodeError as e:
-				raise UtilityException(f'failed to load {str(self.jsonFile)} due to {type(e).__name__} {str(e)}')
+			return self.loads()
 		else:
 			return {}
 	
@@ -52,10 +61,7 @@ class JsonDataManager(object):
 		# Create the directory containing the JSON file if it doesn't already exist
 		jsonDir = os.path.dirname(self.jsonFile)
 		if os.path.exists(jsonDir) == False:
-			try:
-				os.makedirs(jsonDir)
-			except OSError as e:
-				raise UtilityException(f'failed to create directory {str(jsonDir)} due to {type(e).__name__} {str(e)}')
+			Utility.makeDirs(jsonDir)
 		
 		# Store the dictionary
 		Utility.writeFile(self.jsonFile, json.dumps(data))

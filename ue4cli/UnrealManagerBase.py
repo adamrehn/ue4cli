@@ -5,8 +5,9 @@ from .UE4BuildInterrogator import UE4BuildInterrogator
 from .CachedDataManager import CachedDataManager
 from .CMakeCustomFlags import CMakeCustomFlags
 from .Utility import Utility
+from .JsonDataManager import JsonDataManager
 from .UtilityException import UtilityException
-import glob, hashlib, json, os, re, shutil, sys
+import glob, hashlib, json, os, re
 
 class UnrealManagerBase(object):
 	"""
@@ -334,8 +335,8 @@ class UnrealManagerBase(object):
 		
 		# Because performing a clean will also delete the engine build itself when using
 		# a source build, we simply delete the `Binaries` and `Intermediate` directories
-		shutil.rmtree(os.path.join(dir, 'Binaries'), ignore_errors=True)
-		shutil.rmtree(os.path.join(dir, 'Intermediate'), ignore_errors=True)
+		Utility.removeDir(os.path.join(dir, 'Binaries'), ignore_errors=True)
+		Utility.removeDir(os.path.join(dir, 'Intermediate'), ignore_errors=True)
 		
 		# If we are cleaning a project, also clean any plugins
 		if self.isProject(descriptor):
@@ -642,11 +643,7 @@ class UnrealManagerBase(object):
 		Parses the JSON version details for the latest installed version of UE4
 		"""
 		versionFile = os.path.join(self.getEngineRoot(), 'Engine', 'Build', 'Build.version')
-		jsonFile = Utility.readFile(versionFile)
-		try:
-			return json.loads(jsonFile)
-		except json.JSONDecodeError as e:
-			raise UtilityException(f'failed to load {str(jsonFile)} due to {type(e).__name__} {str(e)}')
+		return JsonDataManager(versionFile).loads()
 	
 	def _getEngineVersionHash(self):
 		"""

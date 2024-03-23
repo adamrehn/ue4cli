@@ -91,7 +91,7 @@ class UnrealManagerWindows(UnrealManagerBase):
 		# If the script directory doesn't already exist, attempt to create it
 		scriptDir = os.path.join(os.environ['HOMEDRIVE'] + os.environ['HOMEPATH'], '.ue4')
 		try:
-			os.makedirs(scriptDir)
+			Utility.makeDirs(scriptDir)
 		except:
 			pass
 		
