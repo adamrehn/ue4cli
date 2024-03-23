@@ -232,6 +232,7 @@ def main():
 			SubprocessError,
 			JSONDecodeError,
 			KeyboardInterrupt,
+			SystemExit,
 			) as e:
 		Utility.printStderr('(' + type(e).__name__ + ')', str(e))
 		sys.exit(1)
