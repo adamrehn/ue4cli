@@ -5,6 +5,7 @@ from .UE4BuildInterrogator import UE4BuildInterrogator
 from .CachedDataManager import CachedDataManager
 from .CMakeCustomFlags import CMakeCustomFlags
 from .Utility import Utility
+from .UtilityException import UtilityException
 import glob, hashlib, json, os, re, shutil, sys
 
 class UnrealManagerBase(object):
@@ -316,8 +317,7 @@ class UnrealManagerBase(object):
 		
 		# If the project is a pure Blueprint project, then we cannot generate project files
 		if os.path.exists(os.path.join(dir, 'Source')) == False:
-			Utility.printStderr('Pure Blueprint project, nothing to generate project files for.')
-			return
+			raise UnrealManagerException('Pure Blueprint project, nothing to generate project files for.')
 		
 		# Generate the project files
 		genScript = self.getGenerateScript()
@@ -354,8 +354,7 @@ class UnrealManagerBase(object):
 		
 		# If the project or plugin is Blueprint-only, there is no C++ code to build
 		if os.path.exists(os.path.join(dir, 'Source')) == False:
-			Utility.printStderr('Pure Blueprint {}, nothing to build.'.format(descriptorType))
-			return
+			raise UnrealManagerException('Pure Blueprint {}, nothing to build.'.format(descriptorType))
 		
 		# Verify that the specified build configuration is valid
 		if configuration not in self.validBuildConfigurations():
@@ -567,7 +566,12 @@ class UnrealManagerBase(object):
 		
 		# Build the project if it isn't already built
 		Utility.printStderr('Ensuring project is built...')
-		self.buildDescriptor(dir, suppressOutput=True)
+		try:
+			self.buildDescriptor(dir, suppressOutput=True)
+		except UnrealManagerException:
+			# FIXME: Ideally, we should NOT catch every UnrealManagerException here
+			# This is currently a limitation of our API that uses only one Exception class for multiple different cases
+			pass
 		
 		# Determine which arguments we are passing to the automation test commandlet
 		projectFile = self.getProjectDescriptor(dir)
@@ -605,7 +609,7 @@ class UnrealManagerBase(object):
 			# Detect abnormal exit conditions (those not triggered by `automation quit`)
 			# In Unreal Engine 4.27.0, the exit method changed from RequestExit to RequestExitWithStatus
 			if 'PlatformMisc::RequestExit(' not in logOutput.stdout and 'PlatformMisc::RequestExitWithStatus(' not in logOutput.stdout:
-				raise UnrealManagerException('abnormal exit condition')
+				raise UnrealManagerException('abnormal exit condition detected')
 			
 			# Since UE4 doesn't consistently produce accurate exit codes across all platforms, we need to rely on
 			# text-based heuristics to detect failed automation tests or errors related to not finding any tests to run
@@ -618,12 +622,12 @@ class UnrealManagerBase(object):
 			]
 			for errorStr in errorStrings:
 				if errorStr in logOutput.stdout:
-					raise UnrealManagerException('abnormal exit condition')
+					raise UnrealManagerException('abnormal exit condition detected')
 			
 			# If an explicit exit code was specified in the output text then identify it and propagate it
-			match = re.search('TEST COMPLETE\\. EXIT CODE: ([0-9]+)', logOutput.stdout + logOutput.stderr)
+			match = re.search('TEST COMPLETE\\. EXIT CODE: ([1-9]+)', logOutput.stdout + logOutput.stderr)
 			if match is not None:
-				sys.exit(int(match.group(1)))
+				raise UnrealManagerException('abnormal exit condition detected')
 	
 	# "Protected" methods
 	
@@ -638,7 +642,11 @@ class UnrealManagerBase(object):
 		Parses the JSON version details for the latest installed version of UE4
 		"""
 		versionFile = os.path.join(self.getEngineRoot(), 'Engine', 'Build', 'Build.version')
-		return json.loads(Utility.readFile(versionFile))
+		jsonFile = Utility.readFile(versionFile)
+		try:
+			return json.loads(jsonFile)
+		except json.JSONDecodeError as e:
+			raise UtilityException(f'failed to load {str(jsonFile)} due to {type(e).__name__} {str(e)}')
 	
 	def _getEngineVersionHash(self):
 		"""

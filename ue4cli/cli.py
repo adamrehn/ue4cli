@@ -3,8 +3,7 @@ from .PluginManager import PluginManager
 from .UnrealManagerException import UnrealManagerException
 from .UnrealManagerFactory import UnrealManagerFactory
 from .Utility import Utility
-from subprocess import SubprocessError
-from json import JSONDecodeError
+from .UtilityException import UtilityException
 import os, sys, logging
 
 # Our list of supported commands
@@ -228,11 +227,8 @@ def main():
 			raise UnrealManagerException('unrecognised command "' + command + '"')
 	except (
 			UnrealManagerException,
-			OSError,
-			SubprocessError,
-			JSONDecodeError,
+			UtilityException,
 			KeyboardInterrupt,
-			SystemExit,
 			) as e:
 		Utility.printStderr('(' + type(e).__name__ + ')', str(e))
 		sys.exit(1)
@@ -242,5 +238,4 @@ def main():
 		logger.exception(e)
 		Utility.printStderr('ue4cli has crashed! Please, report it at: https://github.com/adamrehn/ue4cli/issues')
 		sys.exit(1)
-
 

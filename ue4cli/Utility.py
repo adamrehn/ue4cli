@@ -1,3 +1,4 @@
+from .UtilityException import UtilityException
 import os, platform, shlex, subprocess, sys
 
 class CommandOutput(object):
@@ -21,23 +22,29 @@ class Utility:
 		Prints to stderr instead of stdout
 		"""
 		if os.environ.get('UE4CLI_QUIET', '0') != '1':
-			print('(ue4cli)', *args, end='\n', file=sys.stderr, **kwargs)
+			print('(ue4cli)', *args, file=sys.stderr, **kwargs)
 	
 	@staticmethod
 	def readFile(filename):
 		"""
 		Reads data from a file
 		"""
-		with open(filename, 'rb') as f:
-			return f.read().decode('utf-8')
+		try:
+			with open(filename, 'rb') as f:
+				return f.read().decode('utf-8')
+		except OSError as e:
+			raise UtilityException(f'failed to read file {str(filename)} due to {type(e).__name__} {str(e)}')
 	
 	@staticmethod
 	def writeFile(filename, data):
 		"""
 		Writes data to a file
 		"""
-		with open(filename, 'wb') as f:
-			f.write(data.encode('utf-8'))
+		try:
+			with open(filename, 'wb') as f:
+				f.write(data.encode('utf-8'))
+		except OSError as e:
+			raise UtilityException(f'failed to write file {str(filename)} due to {type(e).__name__} {str(e)}')
 	
 	@staticmethod
 	def patchFile(filename, replacements):
@@ -123,12 +130,12 @@ class Utility:
 		
 		# If the child process failed and we were asked to raise an exception, do so
 		if raiseOnError == True and proc.returncode != 0:
-			raise subprocess.SubprocessError(
-				'child process ' + str(command) +
-				' failed with exit code ' + str(proc.returncode) +
-				'\nstdout: "' + stdout + '"' +
-				'\nstderr: "' + stderr + '"'
-			)
+			Utility.printStderr("Warning: child process failure encountered!")
+			Utility.printStderr("printing stdout..")
+			print(stdout)
+			Utility.printStderr("printing stderr..")
+			print(stderr)
+			raise UtilityException(f'child process {str(command)} failed with exit code {str(proc.returncode)}')
 		
 		return CommandOutput(proc.returncode, stdout, stderr)
 	
@@ -143,7 +150,7 @@ class Utility:
 		
 		returncode = subprocess.call(command, cwd=cwd, shell=shell)
 		if raiseOnError == True and returncode != 0:
-			raise subprocess.SubprocessError('child process ' + str(command) + ' failed with exit code ' + str(returncode))
+			raise UtilityException(f'child process {str(command)} failed with exit code {str(returncode)}')
 		return returncode
 	
 	@staticmethod

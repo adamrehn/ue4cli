@@ -1,5 +1,6 @@
 from .UnrealManagerException import UnrealManagerException
 from .Utility import Utility
+from .UtilityException import UtilityException
 import json, os, platform
 
 class JsonDataManager(object):
@@ -28,7 +29,10 @@ class JsonDataManager(object):
 		Retrieves the entire data dictionary
 		"""
 		if os.path.exists(self.jsonFile):
-			return json.loads(Utility.readFile(self.jsonFile))
+			try:
+				return json.loads(Utility.readFile(self.jsonFile))
+			except json.JSONDecodeError as e:
+				raise UtilityException(f'failed to load {str(self.jsonFile)} due to {type(e).__name__} {str(e)}')
 		else:
 			return {}
 	
@@ -48,7 +52,10 @@ class JsonDataManager(object):
 		# Create the directory containing the JSON file if it doesn't already exist
 		jsonDir = os.path.dirname(self.jsonFile)
 		if os.path.exists(jsonDir) == False:
-			os.makedirs(jsonDir)
+			try:
+				os.makedirs(jsonDir)
+			except OSError as e:
+				raise UtilityException(f'failed to create directory {str(jsonDir)} due to {type(e).__name__} {str(e)}')
 		
 		# Store the dictionary
 		Utility.writeFile(self.jsonFile, json.dumps(data))
