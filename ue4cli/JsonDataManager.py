@@ -25,7 +25,7 @@ class JsonDataManager(object):
 		except json.JSONDecodeError as e:
 			# FIXME: This is the only place outside of Utility class where we use UtilityException.
 			# Not worth to create new Exception class for only one single case, at least not now.
-			raise UtilityException(f'failed to load "{str(path)}" due to: ({type(e).__name__}) {str(e)}')
+			raise UtilityException(f'failed to load "{str(path)}" due to: ({type(e).__name__}) {str(e)}') from e
 	
 	def getKey(self, key):
 		"""

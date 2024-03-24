@@ -52,7 +52,7 @@ class UnrealManagerBase(object):
 		try:
 			self.getEngineVersion()
 		except:
-			raise UnrealManagerException('the specified directory does not appear to contain a valid version of the Unreal Engine.')
+			raise UnrealManagerException('the specified directory does not appear to contain a valid version of the Unreal Engine.') from None
 	
 	def clearEngineRootOverride(self):
 		"""
@@ -96,7 +96,7 @@ class UnrealManagerBase(object):
 		
 		# Verify that the requested output format is valid
 		if outputFormat not in formats:
-			raise UnrealManagerException('unreconised version output format "{}"'.format(outputFormat))
+			raise UnrealManagerException(f'unreconised version output format "{str(outputFormat)}"')
 		
 		return formats[outputFormat]
 	
@@ -176,7 +176,7 @@ class UnrealManagerBase(object):
 			try:
 				return self.getPluginDescriptor(dir)
 			except:
-				raise UnrealManagerException('could not detect an Unreal project or plugin in the directory "{}"'.format(dir))
+				raise UnrealManagerException(f'could not detect an Unreal project or plugin in the directory "{str(dir)}"') from None
 	
 	def isProject(self, descriptor):
 		"""
@@ -355,11 +355,11 @@ class UnrealManagerBase(object):
 		
 		# If the project or plugin is Blueprint-only, there is no C++ code to build
 		if os.path.exists(os.path.join(dir, 'Source')) == False:
-			raise UnrealManagerException('Pure Blueprint {}, nothing to build.'.format(descriptorType))
+			raise UnrealManagerException(f'Pure Blueprint {str(descriptorType)}, nothing to build.')
 		
 		# Verify that the specified build configuration is valid
 		if configuration not in self.validBuildConfigurations():
-			raise UnrealManagerException('invalid build configuration "' + configuration + '"')
+			raise UnrealManagerException(f'invalid build configuration "{str(configuration)}"')
 		
 		# Check if the user specified the `-notools` flag to opt out of building Engine tools when working with source builds
 		unstripped = list(args)
@@ -408,7 +408,7 @@ class UnrealManagerBase(object):
 		
 		# Verify that the specified build configuration is valid
 		if configuration not in self.validBuildConfigurations():
-			raise UnrealManagerException('invalid build configuration "' + configuration + '"')
+			raise UnrealManagerException(f'invalid build configuration "{str(configuration)}"')
 		
 		# Strip out the `-NoCompileEditor` flag if the user has specified it, since the Development version
 		# of the Editor modules for the project are needed in order to run the commandlet that cooks content
@@ -538,10 +538,12 @@ class UnrealManagerBase(object):
 		# Detect if the Editor terminated abnormally (i.e. not triggered by `automation quit`)
 		# In Unreal Engine 4.27.0, the exit method changed from RequestExit to RequestExitWithStatus
 		if 'PlatformMisc::RequestExit(' not in logOutput.stdout and 'PlatformMisc::RequestExitWithStatus(' not in logOutput.stdout:
-			raise UnrealManagerException(
-				'failed to retrieve the list of automation tests!' +
-				' stdout was: "{}", stderr was: "{}"'.format(logOutput.stdout, logOutput.stderr)
-			)
+			Utility.printStderr("Warning: abnormal Editor termination detected!")
+			Utility.printStderr("printing stdout..")
+			print(logOutput.stdout)
+			Utility.printStderr("printing stderr..")
+			print(logOutput.stderr)
+			raise UnrealManagerException('failed to retrieve the list of automation tests!')
 		
 		return sorted(list(tests))
 	

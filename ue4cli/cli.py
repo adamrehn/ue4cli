@@ -227,7 +227,7 @@ def main():
 		else:
 			# FIXME: This is the only place outside of UnrealManager... classes where we use UnrealManagerException.
 			# Not worth to create new Exception class for only one single case, at least not now.
-			raise UnrealManagerException('unrecognised command "' + command + '"')
+			raise UnrealManagerException(f'unrecognised command "{str(command)}"') from None
 	
 	except (
 			UnrealManagerException,
