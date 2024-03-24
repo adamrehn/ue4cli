@@ -202,9 +202,10 @@ def displayHelp():
 		print()
 
 def main():
+	
+	logger = logging.getLogger(__name__)
+	
 	try:
-		logger = logging.getLogger(__name__)
-		
 		# Perform plugin detection and register our detected plugins
 		plugins = PluginManager.getPlugins()
 		for command in plugins:
@@ -224,14 +225,18 @@ def main():
 		if command in SUPPORTED_COMMANDS:
 			SUPPORTED_COMMANDS[command]['action'](manager, args)
 		else:
+			# FIXME: This is the only place outside of UnrealManager... classes where we use UnrealManagerException.
+			# Not worth to create new Exception class for only one single case, at least not now.
 			raise UnrealManagerException('unrecognised command "' + command + '"')
+	
 	except (
 			UnrealManagerException,
 			UtilityException,
 			KeyboardInterrupt,
 			) as e:
-		Utility.printStderr('(' + type(e).__name__ + ')', str(e))
+		Utility.printStderr(f'Error: ({type(e).__name__}) {str(e)}')
 		sys.exit(1)
+	
 	except BaseException as e:
 		Utility.printStderr('Unhandled exception! Crashing...')
 		logging.basicConfig(level=logging.DEBUG)

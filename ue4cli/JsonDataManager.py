@@ -16,15 +16,16 @@ class JsonDataManager(object):
 
 	def loads(self):
 		"""
-		Wrapper for json.loads which reads owned jsonFile and loads it
-		In case of encountering JSONDecodeError, it will raise UtilityException
+		Reads and loads owned jsonFile
 		"""
 		try:
 			path = self.jsonFile
 			file = Utility.readFile(path)
 			return json.loads(file)
 		except json.JSONDecodeError as e:
-			raise UtilityException(f'failed to load {str(path)} due to {type(e).__name__} {str(e)}')
+			# FIXME: This is the only place outside of Utility class where we use UtilityException.
+			# Not worth to create new Exception class for only one single case, at least not now.
+			raise UtilityException(f'failed to load "{str(path)}" due to: ({type(e).__name__}) {str(e)}')
 	
 	def getKey(self, key):
 		"""

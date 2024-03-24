@@ -33,7 +33,7 @@ class Utility:
 			with open(filename, 'rb') as f:
 				return f.read().decode('utf-8')
 		except OSError as e:
-			raise UtilityException(f'failed to read file {str(filename)} due to {type(e).__name__} {str(e)}')
+			raise UtilityException(f'failed to read file "{str(filename)}" due to: ({type(e).__name__}) {str(e)}')
 	
 	@staticmethod
 	def writeFile(filename, data):
@@ -44,7 +44,7 @@ class Utility:
 			with open(filename, 'wb') as f:
 				f.write(data.encode('utf-8'))
 		except OSError as e:
-			raise UtilityException(f'failed to write file {str(filename)} due to {type(e).__name__} {str(e)}')
+			raise UtilityException(f'failed to write file "{str(filename)}" due to: ({type(e).__name__}) {str(e)}')
 	
 	@staticmethod
 	def moveFile(src, dst):
@@ -54,7 +54,7 @@ class Utility:
 		try:
 			shutil.move(src, dst)
 		except OSError as e:
-			raise UtilityException(f'failed to move {str(src)} to {str(dst)} due to {type(e).__name__} {str(e)}')
+			raise UtilityException(f'failed to move file from "{str(src)}" to "{str(dst)}" due to: ({type(e).__name__}) {str(e)}')
 	
 	@staticmethod
 	def patchFile(filename, replacements):
@@ -77,7 +77,7 @@ class Utility:
 		try:
 			shutil.rmtree(path, ignore_errors)
 		except OSError as e:
-			raise UtilityException(f'failed to remove directory {str(path)} due to {type(e).__name__} {str(e)}')
+			raise UtilityException(f'failed to remove directory "{str(path)}" due to: ({type(e).__name__}) {str(e)}')
 	
 	@staticmethod
 	def makeDirs(name, mode=0o777, exist_ok=False):
@@ -87,7 +87,7 @@ class Utility:
 		try:
 			os.makedirs(name, mode, exist_ok)
 		except OSError as e:
-			raise UtilityException(f'failed to create directory {str(name)} due to {type(e).__name__} {str(e)}')
+			raise UtilityException(f'failed to create directory "{str(name)}" due to: ({type(e).__name__}) {str(e)}')
 	
 	@staticmethod
 	def forwardSlashes(paths):

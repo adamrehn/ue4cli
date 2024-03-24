@@ -42,7 +42,7 @@ class UnrealManagerWindows(UnrealManagerBase):
 		except:
 			pass
 		
-		raise UnrealManagerException('could not detect the location of GenerateProjectFiles.bat or UnrealVersionSelector.exe.\nThis typically indicates that .uproject files are not correctly associated with UE4.')
+		raise UnrealManagerException('could not detect the location of GenerateProjectFiles.bat or UnrealVersionSelector.exe. This typically indicates that .uproject files are not correctly associated with UE4.')
 	
 	def getRunUATScript(self):
 		return self.getEngineRoot() + '\\Engine\\Build\\BatchFiles\\RunUAT.bat'
