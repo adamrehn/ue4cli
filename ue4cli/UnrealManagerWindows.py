@@ -42,7 +42,7 @@ class UnrealManagerWindows(UnrealManagerBase):
 		except:
 			pass
 		
-		raise UnrealManagerException('could not detect the location of GenerateProjectFiles.bat or UnrealVersionSelector.exe.\nThis typically indicates that .uproject files are not correctly associated with UE4.')
+		raise UnrealManagerException('could not detect the location of GenerateProjectFiles.bat or UnrealVersionSelector.exe. This typically indicates that .uproject files are not correctly associated with UE4.')
 	
 	def getRunUATScript(self):
 		return self.getEngineRoot() + '\\Engine\\Build\\BatchFiles\\RunUAT.bat'
@@ -52,7 +52,7 @@ class UnrealManagerWindows(UnrealManagerBase):
 		# If we are using our custom batch file, use the appropriate arguments
 		genScript = self.getGenerateScript()
 		projectFile = self.getProjectDescriptor(dir)
-		print(projectFile)
+		Utility.printStderr('Using project file:', projectFile)
 		if '.ue4\\GenerateProjectFiles.bat' in genScript:
 			Utility.run([genScript, projectFile], raiseOnError=True)
 		else:
@@ -91,7 +91,7 @@ class UnrealManagerWindows(UnrealManagerBase):
 		# If the script directory doesn't already exist, attempt to create it
 		scriptDir = os.path.join(os.environ['HOMEDRIVE'] + os.environ['HOMEPATH'], '.ue4')
 		try:
-			os.makedirs(scriptDir)
+			Utility.makeDirs(scriptDir)
 		except:
 			pass
 		

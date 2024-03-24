@@ -1,4 +1,5 @@
-import os, platform, shlex, subprocess, sys
+from .UtilityException import UtilityException
+import os, platform, shlex, subprocess, sys, shutil
 
 class CommandOutput(object):
 	"""
@@ -21,23 +22,39 @@ class Utility:
 		Prints to stderr instead of stdout
 		"""
 		if os.environ.get('UE4CLI_QUIET', '0') != '1':
-			print(*args, file=sys.stderr, **kwargs)
+			print('(ue4cli)', *args, file=sys.stderr, **kwargs)
 	
 	@staticmethod
 	def readFile(filename):
 		"""
 		Reads data from a file
 		"""
-		with open(filename, 'rb') as f:
-			return f.read().decode('utf-8')
+		try:
+			with open(filename, 'rb') as f:
+				return f.read().decode('utf-8')
+		except OSError as e:
+			raise UtilityException(f'failed to read file "{str(filename)}" due to: ({type(e).__name__}) {str(e)}') from e
 	
 	@staticmethod
 	def writeFile(filename, data):
 		"""
 		Writes data to a file
 		"""
-		with open(filename, 'wb') as f:
-			f.write(data.encode('utf-8'))
+		try:
+			with open(filename, 'wb') as f:
+				f.write(data.encode('utf-8'))
+		except OSError as e:
+			raise UtilityException(f'failed to write file "{str(filename)}" due to: ({type(e).__name__}) {str(e)}') from e
+	
+	@staticmethod
+	def moveFile(src, dst):
+		"""
+		Moves file from 'src' to 'dst'
+		"""
+		try:
+			shutil.move(src, dst)
+		except OSError as e:
+			raise UtilityException(f'failed to move file from "{str(src)}" to "{str(dst)}" due to: ({type(e).__name__}) {str(e)}') from e
 	
 	@staticmethod
 	def patchFile(filename, replacements):
@@ -51,6 +68,26 @@ class Utility:
 			patched = patched.replace(key, replacements[key])
 		
 		Utility.writeFile(filename, patched)
+	
+	@staticmethod
+	def removeDir(path, ignore_errors=False):
+		"""
+		Recursively remove directory tree
+		"""
+		try:
+			shutil.rmtree(path, ignore_errors)
+		except OSError as e:
+			raise UtilityException(f'failed to remove directory "{str(path)}" due to: ({type(e).__name__}) {str(e)}') from e
+	
+	@staticmethod
+	def makeDirs(name, mode=0o777, exist_ok=False):
+		"""
+		Makes directory
+		"""
+		try:
+			os.makedirs(name, mode, exist_ok)
+		except OSError as e:
+			raise UtilityException(f'failed to create directory "{str(name)}" due to: ({type(e).__name__}) {str(e)}') from e
 	
 	@staticmethod
 	def forwardSlashes(paths):
@@ -123,12 +160,12 @@ class Utility:
 		
 		# If the child process failed and we were asked to raise an exception, do so
 		if raiseOnError == True and proc.returncode != 0:
-			raise Exception(
-				'child process ' + str(command) +
-				' failed with exit code ' + str(proc.returncode) +
-				'\nstdout: "' + stdout + '"' +
-				'\nstderr: "' + stderr + '"'
-			)
+			Utility.printStderr("Warning: child process failure encountered!")
+			Utility.printStderr("printing stdout..")
+			print(stdout)
+			Utility.printStderr("printing stderr..")
+			print(stderr)
+			raise UtilityException(f'child process {str(command)} failed with exit code {str(proc.returncode)}')
 		
 		return CommandOutput(proc.returncode, stdout, stderr)
 	
@@ -143,7 +180,7 @@ class Utility:
 		
 		returncode = subprocess.call(command, cwd=cwd, shell=shell)
 		if raiseOnError == True and returncode != 0:
-			raise Exception('child process ' + str(command) + ' failed with exit code ' + str(returncode))
+			raise UtilityException(f'child process {str(command)} failed with exit code {str(returncode)}')
 		return returncode
 	
 	@staticmethod
@@ -152,4 +189,4 @@ class Utility:
 		Prints a command if verbose output is enabled
 		"""
 		if os.environ.get('UE4CLI_VERBOSE', '0') == '1':
-			Utility.printStderr('[UE4CLI] EXECUTE COMMAND:', command)
+			Utility.printStderr('EXECUTE COMMAND:', command)

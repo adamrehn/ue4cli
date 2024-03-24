@@ -2,11 +2,15 @@ from .ThirdPartyLibraryDetails import ThirdPartyLibraryDetails
 from .UnrealManagerException import UnrealManagerException
 from .CachedDataManager import CachedDataManager
 from .Utility import Utility
-import json, os, platform, shutil, tempfile
+from .UtilityException import UtilityException
+from .JsonDataManager import JsonDataManager
+import os, tempfile
 
 class UE4BuildInterrogator(object):
 	
 	def __init__(self, engineRoot, engineVersion, engineVersionHash, runUBTFunc):
+		# WARN: os.path.realpath can potentially fail with OSError,
+		# but if it ever happens, this is most likely bug in our code
 		self.engineRoot = os.path.realpath(engineRoot)
 		self.engineSourceDir = 'Engine/Source/'
 		self.engineVersion = engineVersion
@@ -160,7 +164,7 @@ class UE4BuildInterrogator(object):
 		sentinelBackup = sentinelFile + '.bak'
 		renameSentinel = os.path.exists(sentinelFile) and os.environ.get('UE4CLI_SENTINEL_RENAME', '0') == '1'
 		if renameSentinel == True:
-			shutil.move(sentinelFile, sentinelBackup)
+			Utility.moveFile(sentinelFile, sentinelBackup)
 		
 		# Invoke UnrealBuildTool in JSON export mode (make sure we specify gathering mode, since this is a prerequisite of JSON export)
 		# (Ensure we always perform sentinel file cleanup even when errors occur)
@@ -172,10 +176,10 @@ class UE4BuildInterrogator(object):
 				self.runUBTFunc('UE4Editor', platformIdentifier, configuration, args)
 		finally:
 			if renameSentinel == True:
-				shutil.move(sentinelBackup, sentinelFile)
+				Utility.moveFile(sentinelBackup, sentinelFile)
 		
 		# Parse the JSON output
-		result = json.loads(Utility.readFile(jsonFile))
+		result = JsonDataManager(jsonFile).loads()
 		
 		# Extract the list of third-party library modules
 		# (Note that since UE4.21, modules no longer have a "Type" field, so we must
@@ -188,7 +192,7 @@ class UE4BuildInterrogator(object):
 		
 		# Remove the temp directory
 		try:
-			shutil.rmtree(tempDir)
+			Utility.removeDir(tempDir)
 		except:
 			pass
 		

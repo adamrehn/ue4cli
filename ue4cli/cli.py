@@ -2,7 +2,9 @@ from collections import OrderedDict
 from .PluginManager import PluginManager
 from .UnrealManagerException import UnrealManagerException
 from .UnrealManagerFactory import UnrealManagerFactory
-import os, sys
+from .Utility import Utility
+from .UtilityException import UtilityException
+import os, sys, logging
 
 # Our list of supported commands
 SUPPORTED_COMMANDS = {
@@ -200,8 +202,10 @@ def displayHelp():
 		print()
 
 def main():
+	
+	logger = logging.getLogger(__name__)
+	
 	try:
-		
 		# Perform plugin detection and register our detected plugins
 		plugins = PluginManager.getPlugins()
 		for command in plugins:
@@ -221,8 +225,22 @@ def main():
 		if command in SUPPORTED_COMMANDS:
 			SUPPORTED_COMMANDS[command]['action'](manager, args)
 		else:
-			raise UnrealManagerException('unrecognised command "' + command + '"')
-		
-	except UnrealManagerException as e:
-		print('Error: ' + str(e))
+			# FIXME: This is the only place outside of UnrealManager... classes where we use UnrealManagerException.
+			# Not worth to create new Exception class for only one single case, at least not now.
+			raise UnrealManagerException(f'unrecognised command "{str(command)}"') from None
+	
+	except (
+			UnrealManagerException,
+			UtilityException,
+			KeyboardInterrupt,
+			) as e:
+		Utility.printStderr(f'Error: ({type(e).__name__}) {str(e)}')
 		sys.exit(1)
+	
+	except BaseException as e:
+		Utility.printStderr('Unhandled exception! Crashing...')
+		logging.basicConfig(level=logging.DEBUG)
+		logger.exception(e)
+		Utility.printStderr('ue4cli has crashed! Please, report it at: https://github.com/adamrehn/ue4cli/issues')
+		sys.exit(1)
+

@@ -1,6 +1,7 @@
 from .UnrealManagerException import UnrealManagerException
 from .Utility import Utility
-import json, os, platform
+from .UtilityException import UtilityException
+import json, os
 
 class JsonDataManager(object):
 	"""
@@ -12,6 +13,19 @@ class JsonDataManager(object):
 		Creates a new JsonDataManager instance for the specified JSON file
 		"""
 		self.jsonFile = jsonFile
+
+	def loads(self):
+		"""
+		Reads and loads owned jsonFile
+		"""
+		try:
+			path = self.jsonFile
+			file = Utility.readFile(path)
+			return json.loads(file)
+		except json.JSONDecodeError as e:
+			# FIXME: This is the only place outside of Utility class where we use UtilityException.
+			# Not worth to create new Exception class for only one single case, at least not now.
+			raise UtilityException(f'failed to load "{str(path)}" due to: ({type(e).__name__}) {str(e)}') from e
 	
 	def getKey(self, key):
 		"""
@@ -28,10 +42,7 @@ class JsonDataManager(object):
 		Retrieves the entire data dictionary
 		"""
 		if os.path.exists(self.jsonFile):
-			try:
-				return json.loads(Utility.readFile(self.jsonFile))
-			except json.JSONDecodeError as err:
-				raise UnrealManagerException('malformed JSON configuration file "{}" ({})'.format(self.jsonFile, err))
+			return self.loads()
 		else:
 			return {}
 	
@@ -51,7 +62,7 @@ class JsonDataManager(object):
 		# Create the directory containing the JSON file if it doesn't already exist
 		jsonDir = os.path.dirname(self.jsonFile)
 		if os.path.exists(jsonDir) == False:
-			os.makedirs(jsonDir)
+			Utility.makeDirs(jsonDir)
 		
 		# Store the dictionary
 		Utility.writeFile(self.jsonFile, json.dumps(data))
